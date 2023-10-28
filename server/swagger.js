@@ -4,9 +4,9 @@ const options = {
   swaggerDefinition: {
     openapi: '3.1.0',
     info: {
-      title: 'Your API Documentation',
+      title: 'onTrack API Documentation',
       version: '1.0.0',
-      description: 'API documentation for your project.',
+      description: 'API documentation for onTrack.',
     },
     servers: [
       {
