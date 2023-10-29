@@ -2,6 +2,20 @@ const express = require("express");
 const router = express.Router()
 const oracledb = require('oracledb');
 
+/**
+ * @swagger
+ * /task:
+ *   get:
+ *     summary: Get a list of tasks
+ *     description: Retrieve a list of all tasks.
+ *     responses:
+ *       200:
+ *         description: Successful response
+ *         content:
+ *           application/json:
+ *             example:
+ *               tasks: []
+ */ 
 // Fetch all tasks
 router.get("/", (req, res) => {
     res.send({ data: "Test"});
