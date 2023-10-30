@@ -4,6 +4,15 @@ const oracledb = require("oracledb");
 const { v4: uuidv4 } = require('uuid');
 const dbConfig = require("../dbconfig");
 
+const initOracleClient = async () => {
+    try {
+      const connection = await oracledb.getConnection(dbConfig); 
+      return connection;
+    } catch (error) {
+      throw error;
+    }
+  };
+
 /**
  * @swagger
  * /tasks:
@@ -178,32 +187,9 @@ router.post("/", async (req, res) => {
     const {task, description, userId, progress, createDate, endDate, priority} = req.body;
     console.log(task,description, userId, progress, createDate, endDate, priority);
     // Generate a new UUID for task
-    const taskId = uuidv4();
+    const taskId = '1';
 
-    /// Check if parameters exist and have the correct data types
-if (!task) {
-    return res.status(400).send({ error: "Task name (task) is required" });
-} else if (typeof task !== 'string') {
-    return res.status(400).send({ error: "Task name (task) must be a string" });
-}
 
-if (!userId) {
-    return res.status(400).send({ error: "User ID (userId) is required" });
-} else if (!uuidv4(userId)) {
-    return res.status(400).send({ error: "User ID (userId) must be a valid UUID" });
-}
-
-if (!progress) {
-    return res.status(400).send({ error: "Task progress (progress) is required" });
-} else if (typeof progress !== 'string') {
-    return res.status(400).send({ error: "Task progress (progress) must be a string" });
-}
-
-if (!description) {
-    return res.status(400).send({ error: "Task description (description) is required" });
-} else if (typeof description !== 'string') {
-    return res.status(400).send({ error: "Task description (description) must be a string" });
-}
 
 
     // // Check if the user exists
@@ -245,8 +231,31 @@ if (!description) {
     // }
 
     try {
-        const connection = await oracledb.getConnection(dbConfig);
+        const connection = await initOracleClient();
+            /// Check if parameters exist and have the correct data types
+        if (!task) {
+            return res.status(400).send({ error: "Task name (task) is required" });
+        } else if (typeof task !== 'string') {
+            return res.status(400).send({ error: "Task name (task) must be a string" });
+        }
 
+        if (!userId) {
+            return res.status(400).send({ error: "User ID (userId) is required" });
+        } else if (typeof progress !== 'integer') {
+            return res.status(400).send({ error: "User ID (userId) must be a valid UUID" });
+        }
+
+        if (!progress) {
+            return res.status(400).send({ error: "Task progress (progress) is required" });
+        } else if (typeof progress !== 'string') {
+            return res.status(400).send({ error: "Task progress (progress) must be a string" });
+        }
+
+        if (!description) {
+            return res.status(400).send({ error: "Task description (description) is required" });
+        } else if (typeof description !== 'string') {
+            return res.status(400).send({ error: "Task description (description) must be a string" });
+        }
         try {
             // Insert query to insert the new task into the database
             const result = await connection.execute(
