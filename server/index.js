@@ -6,15 +6,17 @@ const swaggerSpec = require('./swagger');
 const app = express();
 
 
-// Add Swagger documentation to your Express app
+// Middleware
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
+app.use(express.urlencoded({ extended: true }));
+app.use(bodyParser.json());
 
 // Routes
-const userRoute = require('./routes/user');
-app.use('/user', userRoute);
+const userRoute = require('./routes/users');
+app.use('/users', userRoute);
 
-const taskRoute = require('./routes/task');
-app.use('/task', taskRoute);
+const taskRoute = require('./routes/tasks');
+app.use('/tasks', taskRoute);
 
 // Port
 const PORT = process.env.PORT || 5001;
