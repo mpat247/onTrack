@@ -2,16 +2,9 @@ const express = require("express");
 const router = express.Router();
 const oracledb = require("oracledb");
 const { v4: uuidv4 } = require('uuid');
-const dbConfig = require("../dbconfig");
+const dbConfig = require("./dbconfig");
 
-const initOracleClient = async () => {
-    try {
-      const connection = await oracledb.getConnection(dbConfig); 
-      return connection;
-    } catch (error) {
-      throw error;
-    }
-  };
+oracledb.initOracleClient({ libDir: '/Users/manav/Documents/Fourth Year/714/instantclient_19_8' });
 
 /**
  * @swagger
@@ -38,8 +31,7 @@ router.get("/", async (req, res) => {
         try {
             // Query to get all tasks
             const result = await connection.execute(
-                `SELECT * FROM tasks WHERE userid = :userId`,
-                { userId }
+                `SELECT * FROM TASK`
             );
 
             // If tasks are found, return them
@@ -147,8 +139,7 @@ router.get("/:id", async (req, res) => {
  *                   type: string
  *                   description: The description of the task.
  *                 userId:
- *                   type: string
- *                   format: uuid
+ *                   type: integer
  *                   description: The user ID associated with the task (in UUID format).
  *                 progress:
  *                   type: string
@@ -179,60 +170,36 @@ router.get("/:id", async (req, res) => {
  *               }
  */
 
-
 // Create a new task
 router.post("/", async (req, res) => {
     console.log(req.body);
     // Get parameters to insert into the database from the request body
     const {task, description, userId, progress, createDate, endDate, priority} = req.body;
     console.log(task,description, userId, progress, createDate, endDate, priority);
-    // Generate a new UUID for task
-    const taskId = '1';
 
+    // Check if the user exists
+    let userExists = false;
+    try {
+        const userConnection = await oracledb.getConnection(dbConfig);
+        const userResult = await userConnection.execute(
+            `SELECT * FROM ACCOUNT WHERE USER_ID = :userId`,
+            { userId }
+        );
+        userExists = userResult.rows.length > 0;
+        await userConnection.close();
+    } catch (error) {
+        console.error("Error checking user existence: ", error);
+        return res.status(500).send({ error: "Database Error", details: error.message });
+    }
 
-
-
-    // // Check if the user exists
-    // let userExists = false;
-    // try {
-    //     const userConnection = await oracledb.getConnection(dbConfig);
-    //     const userResult = await userConnection.execute(
-    //         `SELECT * FROM users WHERE userId = :userId`,
-    //         { userId }
-    //     );
-    //     userExists = userResult.rows.length > 0;
-    //     await userConnection.close();
-    // } catch (error) {
-    //     console.error("Error checking user existence: ", error);
-    //     return res.status(500).send({ error: "Database Error", details: error.message });
-    // }
-
-    // if (!userExists) {
-    //     return res.status(400).send({ error: "User does not exist" });
-    // }
-
-    // // Check if the task with the same parameters already exists
-    // let taskExists = false;
-    // try {
-    //     const taskConnection = await oracledb.getConnection(dbConfig);
-    //     const taskResult = await taskConnection.execute(
-    //         `SELECT * FROM tasks WHERE USER_ID = :userId AND TASK_ID = :taskId AND TASK_NAME = :task`,
-    //         { userId, taskId, task }
-    //     );
-    //     taskExists = taskResult.rows.length > 0;
-    //     await taskConnection.close();
-    // } catch (error) {
-    //     console.error("Error checking task existence: ", error);
-    //     return res.status(500).send({ error: "Database Error", details: error.message });
-    // }
-
-    // if (taskExists) {
-    //     return res.status(400).send({ error: "Task already exists" });
-    // }
+    if (!userExists) {
+        return res.status(400).send({ error: "User does not exist" });
+    }
 
     try {
-        const connection = await initOracleClient();
-            /// Check if parameters exist and have the correct data types
+        const connection = await oracledb.getConnection(dbConfig);
+
+        // Check if parameters exist and have the correct data types
         if (!task) {
             return res.status(400).send({ error: "Task name (task) is required" });
         } else if (typeof task !== 'string') {
@@ -241,8 +208,8 @@ router.post("/", async (req, res) => {
 
         if (!userId) {
             return res.status(400).send({ error: "User ID (userId) is required" });
-        } else if (typeof progress !== 'integer') {
-            return res.status(400).send({ error: "User ID (userId) must be a valid UUID" });
+        } else if (isNaN(userId)) {
+            return res.status(400).send({ error: "User ID (userId) must be a number" });
         }
 
         if (!progress) {
@@ -256,26 +223,35 @@ router.post("/", async (req, res) => {
         } else if (typeof description !== 'string') {
             return res.status(400).send({ error: "Task description (description) must be a string" });
         }
+
+        if (!priority) {
+            return res.status(400).send({ error: "Task priority (priority) is required" });
+        } else if (isNaN(priority)) {
+            return res.status(400).send({ error: "Task priority (priority) must be a number" });
+        }
+
         try {
             // Insert query to insert the new task into the database
             const result = await connection.execute(
-                `INSERT INTO tasks (TASK_ID, TASK_NAME, TASK_DESCRIPTION, USER_ID, TASK_PROGRESS, TASK_CREATEDATE, TASK_ENDDATE, TASK_PRIORITY) VALUES (:TASK_ID, :TASK_NAME, :TASK_DESCRIPTION, :USER_ID, :TASK_PROGRESS, :TASK_CREATEDATE, :TASK_ENDDATE, :TASK_PRIORITY)`,
+                `INSERT INTO TASK (TASK_NAME, TASK_DESCRIPTION, USER_ID, TASK_PROGRESS, TASK_CREATEDATE, TASK_ENDDATE, TASK_PRIORITY) VALUES (:TASK_NAME, :TASK_DESCRIPTION, :USER_ID, :TASK_PROGRESS, TO_DATE(:TASK_CREATEDATE, 'YYYY-MM-DD'), TO_DATE(:TASK_ENDDATE, 'YYYY-MM-DD'), :TASK_PRIORITY)`,
                 {
-                    TASK_ID: taskId,
                     TASK_NAME: task,
                     TASK_DESCRIPTION: description,
                     USER_ID: userId,
                     TASK_PROGRESS: progress,
                     TASK_CREATEDATE: createDate,
                     TASK_ENDDATE: endDate,
-                    TASK_PRIORITY: priority,
+                    TASK_PRIORITY: Number(priority),
                 }
             );
+
+            await connection.commit();
 
             // Success response
             res.status(200).send({ payload: result, message: "Task created successfully" });
         } catch (error) {
-            res.status(500).send({ error: error, message: "Database Query Error" });
+            console.error("Database Query Error:", error); // Log the error for debugging
+            res.status(500).send({ error: "Database Query Error", details: error.message });
         } finally {
             if (connection) {
                 try {
