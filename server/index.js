@@ -1,23 +1,27 @@
 const express = require('express');
-const bodyParser = require('body-parser');
-const swaggerJsonDoc = require('swagger-jsdoc')
-const swaggerUI = require('swagger-ui-express')
-const swaggerSpec = require('./swagger');
+const oracledb = require('oracledb');
 const app = express();
 
-
-// Middleware
-app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
-app.use(express.urlencoded({ extended: true }));
-app.use(bodyParser.json());
-
-// Routes
-const userRoute = require('./routes/users');
-app.use('/users', userRoute);
-
-const taskRoute = require('./routes/tasks');
-app.use('/tasks', taskRoute);
-
-// Port
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));  
+// Define a route to perform database operations
+app.get('/query', async (req, res) => {
+    try {
+      const connection = await oracledb.getConnection({
+        user: '',
+        password: '',
+        connectString: '(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=oracle.scs.ryerson.ca)(PORT=1521))(CONNECT_DATA=(SID=orcl)))'
+      });
+  
+      const query = 'SELECT * FROM account';
+      const result = await connection.execute(query);
+      res.json(result.rows);
+  
+      await connection.close();
+    } catch (error) {
+      console.error(error);
+      res.status(500).send('Error querying the database.');
+    }
+  });
+  
+  app.listen(3000, () => {
+    console.log('Server is running on port 3000');
+  });
