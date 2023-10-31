@@ -248,7 +248,7 @@ router.post("/", async (req, res) => {
             await connection.commit();
 
             // Success response
-            res.status(200).send({ payload: result, message: "Task created successfully" });
+            res.status(200).send({ payload: result.rows[0], message: "Task created successfully" });
         } catch (error) {
             console.error("Database Query Error:", error); // Log the error for debugging
             res.status(500).send({ error: "Database Query Error", details: error.message });
