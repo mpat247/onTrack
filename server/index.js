@@ -1,10 +1,23 @@
-const express = require('express')
-const app = express();
+const oracledb = require('oracledb');
+oracledb.outFormat = oracledb.OUT_FORMAT_OBJECT;
 
-app.get("/api", (req, res) => {
-    res.json({"1": ["2", "3", "4"] })
-})
+async function fun() {
+    let con;
 
-const PORT = process.env.PORT || 5001;
+    try {
+        con = await oracledb.getConnection( {
+            user            :   "hr",
+            password        :   "hr",
+            connectString   :   "localhost/DHRUVI"
+        });
 
-app.listen(PORT, () => console.log(`Server started on port ${PORT}`));  
+        const data = await con.execute(
+            "SELECT * FROM account",
+        );
+        console.log(data.rows);
+
+    } catch (err) {
+        console.error(err);
+    }
+}
+fun();
