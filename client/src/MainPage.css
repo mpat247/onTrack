@@ -1,0 +1,78 @@
+body{
+    color: FFFFFF;
+}
+header{
+    background-size: cover ;
+    background-position: center bottom;
+    display: flex;
+    height: 12vw;
+}
+.wave-header{
+    width:100%;
+    position: relative;
+    display:flex;
+    
+}
+
+svg{
+    position:absolute;
+    bottom: 0;
+    left: 0;
+
+}
+#logo-container{
+    display: flex;
+    align-items: center;
+    margin-left:0.5vw;
+    margin-top:1vw;
+    height:5vw;
+    position: absolute;
+    z-index: 1;
+}
+#logo{
+  width:10vh;
+}
+#title{
+    font-family: Helvetica;
+    font-size: 8vh;
+    margin-left: 1vw    ;
+    font-weight: 700;
+    color:white;
+}
+#input-container{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 50vh;
+}
+#form-container{
+    display: flex;
+    flex-direction: column;
+    height:5vh;
+    margin-left:5vw;
+}
+.input-group{
+    display:flex;
+    align-items: center;
+    margin-bottom: 3vh;
+}
+label{
+    color: #333333;
+    width: 150px;
+    text-align: right;
+    margin-right: 20px;
+    font-size: 24px;
+}
+input{
+    padding:12px;
+    font-size: 18px;
+    border: 3px solid #333333;;
+    width: 250px;
+    height:20px;
+    color: #9C9696;
+}
+#username, #password{
+    width: 200px;
+    margin-left: 50px;
+    height: 10px;
+}
