@@ -3,6 +3,7 @@ const router = express.Router();
 const oracledb = require("oracledb");
 const { v4: uuidv4 } = require('uuid');
 const dbConfig = require("./dbconfig");
+const jwt = require('jsonwebtoken')
 
 /**
  * @swagger
