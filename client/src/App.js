@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Calendar from './CalendarPage.js';
 import Main from './MainPage.js';
 import './App.css';
@@ -9,7 +9,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/calendarpage" element={<Calendar />} />
-        <Route index element={<Main />} />
+        <Route path="/onTrack" element={<Main />} />
       </Routes>
     </Router>
   );
