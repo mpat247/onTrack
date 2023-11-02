@@ -51,7 +51,7 @@ svg{
     height:5vh;
     margin-left:5vw;
 }
-.input-group{
+.input-group {
     display:flex;
     align-items: center;
     margin-bottom: 3vh;
@@ -75,4 +75,8 @@ input{
     width: 200px;
     margin-left: 50px;
     height: 10px;
+}
+
+.buttons { 
+    text-align: right;
 }

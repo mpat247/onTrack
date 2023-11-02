@@ -26,6 +26,9 @@ function MainPage() {
           <label for="password">Password</label>
             <input type="text" id="password" name="password"></input>
           </div>
+          <div class='buttons'>
+            <button type="button">Login</button>
+          </div>
         </div>
       </div>
 
