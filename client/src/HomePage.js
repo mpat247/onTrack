@@ -4,7 +4,6 @@ import onTrackLogo from './onTrackLogo.png';
 import axios from 'axios'; // Import Axios
 
 
-
 function MainPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -15,10 +14,7 @@ function MainPage() {
       console.log(username, password);
       const response = await axios.get(`http://localhost:5001/users/${username}/${password}`);
       if (response.status === 200) {
-        const userData = response.data.payload.username; // Access the "name" property
-        console.log(userData);
-
-        ; // Access response data directly
+        const userData = response.data; // Access response data directly
         console.log('User found:', userData);
         setLoginStatus('Success');
       } else if (response.status === 404) {
@@ -53,13 +49,7 @@ function MainPage() {
             <label for="username">Username</label>
             <input type="text" id="username" name="username" onChange={(e) => setUsername(e.target.value)}></input>
           </div>
-          <div class='input-group'>
-          <label for="password">Password</label>
-            <input type="text" id="password" name="password" onChange={(e) => setPassword(e.target.value)}></input>
-          </div>
-          <div class='buttons'>
-            <button type="button" onClick={handleLogin}>Login</button>
-          </div>
+          
         </div>
       </div>
 
