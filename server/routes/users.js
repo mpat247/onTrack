@@ -44,14 +44,24 @@ router.get("/:name/:password", async (req, res) => {
             password,
         });
 
+        // userData = result.rows[0]
+
         await connection.close();
+
+        console.log(result)
 
         if (result.rows && result.rows.length > 0) {
             // User found
-            res.status(200).send({ user: result.rows[0] });
+            const userData = {
+                id: result.rows[0],
+                username: result.rows[0][1],
+                password: result.rows[0][2],
+                email: result.rows[0][3]
+            };
+            res.status(200).json({msg:"User Found", payload: userData });
         } else {
             // User not found
-            res.status(404).send({ error: "User not found" });
+            res.status(404).json({ error: "User not found" });
         }
     } catch (error) {
         console.error("Database Query Error:", error);
