@@ -2,25 +2,29 @@ import './MainPage.css';
 import React, { useState } from 'react';
 import onTrackLogo from './onTrackLogo.png';
 import axios from 'axios'; // Import Axios
-
-
+import Homepage from './HomePage'; // Import the Homepage component
+const api = "http://localhost:5001"
 
 function MainPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginStatus, setLoginStatus] = useState(null);
-
   const handleLogin = async () => {
     try {
       console.log(username, password);
       const response = await axios.get(`http://localhost:5001/users/${username}/${password}`);
       if (response.status === 200) {
-        const userData = response.data.payload.username; // Access the "name" property
-        console.log(userData);
+        const userData = response.data.payload.username;
+        // Encode userData as a query parameter
+        const userDataParam = encodeURIComponent(JSON.stringify(userData));
+  
+        // Construct the URL with the query parameter
+        //window.location.href = `http://localhost/homepage`;
+        localStorage.setItem('storageName', userData);
+        window.location = `http://localhost:3000/homepage`;
+        
 
-        ; // Access response data directly
-        console.log('User found:', userData);
-        setLoginStatus('Success');
+
       } else if (response.status === 404) {
         console.log('User not found');
         setLoginStatus('User not found');

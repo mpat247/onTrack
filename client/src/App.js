@@ -11,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/calendarpage" element={<Calendar />} />
         <Route path="/onTrack" element={<Main />} />
+        <Route path="/homepage" element={<Home />} />
       </Routes>
     </Router>
   );

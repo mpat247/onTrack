@@ -1,34 +1,13 @@
+import onTrackLogo from './onTrackLogo.png';
 import './MainPage.css';
 import React, { useState } from 'react';
-import onTrackLogo from './onTrackLogo.png';
-import axios from 'axios'; // Import Axios
+import './MainPage.js'
 
 
-function MainPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [loginStatus, setLoginStatus] = useState(null);
-
-  const handleLogin = async () => {
-    try {
-      console.log(username, password);
-      const response = await axios.get(`http://localhost:5001/users/${username}/${password}`);
-      if (response.status === 200) {
-        const userData = response.data; // Access response data directly
-        console.log('User found:', userData);
-        setLoginStatus('Success');
-      } else if (response.status === 404) {
-        console.log('User not found');
-        setLoginStatus('User not found');
-      } else {
-        console.log('Server error');
-        setLoginStatus('Server error');
-      }
-    } catch (error) {
-      console.error('Axios error:', error);
-      setLoginStatus('Network error');
-    }
-  };
+function HomePage() {
+ 
+  var userData = localStorage.getItem('storageName'); 
+  console.log(userData);
 
   return (
 
@@ -46,10 +25,8 @@ function MainPage() {
       <div id='input-container'>
         <div id='form-container'>
           <div class='input-group'>
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username" onChange={(e) => setUsername(e.target.value)}></input>
+            <h1>Welcome {userData}</h1>
           </div>
-          
         </div>
       </div>
 
@@ -58,4 +35,4 @@ function MainPage() {
   );
 }
 
-export default MainPage;
+export default HomePage;
