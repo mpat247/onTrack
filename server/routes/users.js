@@ -3,7 +3,9 @@ const router = express.Router();
 const oracledb = require("oracledb");
 const { v4: uuidv4 } = require('uuid');
 const dbConfig = require("./dbconfig");
-const jwt = require('jsonwebtoken')
+const jwt = require('jsonwebtoken');
+const nodemailer = require("nodemailer");
+
 
 /**
  * @swagger
@@ -59,6 +61,82 @@ router.get("/:name/:password", async (req, res) => {
                 email: result.rows[0][3]
             };
             res.status(200).json({msg:"User Found", payload: userData });
+        } else {
+            // User not found
+            res.status(404).json({ error: "User not found" });
+        }
+    } catch (error) {
+        console.error("Database Query Error:", error);
+        res.status(500).send({ error: "Database Query Error", details: error.message });
+    }
+});
+
+// Get User by Name and Password
+router.get("/reset", async (req, res) => {
+    const { email} = req.body;
+
+    if (!email) {
+        return res.status(400).send({ error: "Email is required." });
+    }
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        // Perform a query to retrieve a user by name and password
+        const query = `
+            SELECT * FROM ACCOUNT
+            WHERE USER_EMAIL = :email
+        `;
+        
+        const result = await connection.execute(query, {
+            email
+        });
+
+        // userData = result.rows[0]
+
+        await connection.close();
+
+        console.log(result)
+
+        if (result.rows && result.rows.length > 0) {
+            // User found
+            const userData = {
+                id: result.rows[0][0],
+                username: result.rows[0][1],
+                password: result.rows[0][2],
+                email: result.rows[0][3]
+            };
+        
+            console.log(userData.email);
+
+            // Create a nodemailer transporter
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: "imagegenerator6@gmail.com", // your email address
+                    pass: "hlxc lvba sacz qgas" // your email password
+                }
+            });
+        
+            // Email content
+            const mailOptions = {
+                from: "imagegenerator6@gmail.com",
+                to: userData.email,
+                subject: "Email Verification for onTrack Application",
+                text: "Please click the following link to verify your email: http://example.com/verify"
+            };
+
+        
+            // Send the email
+            transporter.sendMail(mailOptions, function(error, info) {
+                if (error) {
+                    console.error("Email sending failed:", error);
+                    res.status(500).json({ error: "Email sending failed" });
+                } else {
+                    console.log("Email sent:", info.response);
+                    res.status(200).json({ msg: "User Found and Email Sent", payload: userData });
+                }
+            });
         } else {
             // User not found
             res.status(404).json({ error: "User not found" });
