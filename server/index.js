@@ -7,6 +7,8 @@ const swaggerUI = require('swagger-ui-express')
 const swaggerSpec = require('./swagger');
 const cors = require('cors');
 
+oracledb.initOracleClient({ libDir: '/Users/manav/Documents/Fourth Year/714/instantclient_19_8' });
+
 
 // Middleware
 app.use('/api-docs', swaggerUI.serve, swaggerUI.setup(swaggerSpec));
@@ -22,7 +24,7 @@ const taskRoute = require('./routes/tasks');
 app.use('/tasks', taskRoute);
 
 // Port
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5003;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));  
 
 

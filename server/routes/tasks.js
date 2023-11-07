@@ -4,7 +4,6 @@ const oracledb = require("oracledb");
 const { v4: uuidv4 } = require('uuid');
 const dbConfig = require("./dbconfig");
 
-//oracledb.initOracleClient({ libDir: '/Users/manav/Documents/Fourth Year/714/instantclient_19_8' });
 
 /**
  * @swagger
