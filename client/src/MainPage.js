@@ -12,7 +12,7 @@ function MainPage() {
   const handleLogin = async () => {
     try {
       console.log(username, password);
-      const response = await axios.get(`http://localhost:5001/users/${username}/${password}`);
+      const response = await axios.get(`http://localhost:5003/users/${username}/${password}`);
       if (response.status === 200) {
         const userData = response.data.payload.username;
         // Encode userData as a query parameter
@@ -23,8 +23,6 @@ function MainPage() {
         localStorage.setItem('storageName', userData);
         window.location = `http://localhost:3000/homepage`;
         
-
-
       } else if (response.status === 404) {
         console.log('User not found');
         setLoginStatus('User not found');

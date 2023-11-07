@@ -24,7 +24,7 @@ const taskRoute = require('./routes/tasks');
 app.use('/tasks', taskRoute);
 
 // Port
-const PORT = process.env.PORT || 5003;
+const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));  
 
 
