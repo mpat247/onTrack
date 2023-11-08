@@ -4,6 +4,9 @@ import onTrackLogo from './onTrackLogo.png';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import 'font-awesome/css/font-awesome.min.css';
+import Main from './MainPage.js';
+import Home from './HomePage.js';
+import RegisterPage from './Registration.js';
 const api = "http://localhost:5001"
 
 const months = [
@@ -116,14 +119,10 @@ function CalendarPage() {
     <body>
       <title>Calendar</title>
             <header>
-                <div class="wave-header">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path 
-                fill="#79addc" fill-opacity="1" d="M0,320L60,304C120,288,240,256,360,229.3C480,203,600,181,720,176C840,171,960,181,1080,181.3C1200,181,1320,171,1380,165.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path></svg>
-                </div>
-                <div id='logo-container'> 
-                <img src={onTrackLogo} id='logo' alt="Logo" />
-                <div id='title'>onTrack</div>
-                </div>
+              <ul>
+                <li><a href="/calendarpage">Calendar View</a></li>
+                <li><a href=" ">List View</a></li>
+              </ul>
             </header>
       <div class="container">
         <div class="calendar">
