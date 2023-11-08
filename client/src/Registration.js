@@ -6,6 +6,7 @@ import axios from 'axios';
 import { Link } from 'react-router-dom';
 const api = "http://localhost:5001"
 
+
 function RegistrationPage() {
 
     const [username, setUsername] = useState('');
@@ -68,7 +69,7 @@ function RegistrationPage() {
             </header>
             <h1>Your Current Track...<br></br></h1>
             <h2>Register:</h2>
-            <div id='input-container'>
+            
                 <div id='form-container'>
                 <h3 id='resolve'>{registrationStatus}</h3>
                     <div class='input-group'>
@@ -91,7 +92,7 @@ function RegistrationPage() {
                         <button type="button"><Link to="/onTrack">Login</Link></button>
                     </div>
                 </div>
-            </div>
+            
         </body>
 
     );

@@ -29,9 +29,8 @@ function HomePage() {
           </div>
         </div>
       </div>
-
   </body>
-    
+
   );
 }
 
