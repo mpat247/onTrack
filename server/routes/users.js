@@ -148,7 +148,7 @@ router.get("/reset", async (req, res) => {
 });
 
 // Create Account
-router.post("/", async (req, res) => {
+router.post("/register", async (req, res) => {
     // Get parameters to insert into the database from the request body
     const {name, password, email} = req.body;
     console.log(req.body);

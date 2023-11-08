@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import onTrackLogo from './onTrackLogo.png';
 import axios from 'axios'; // Import Axios
 import Homepage from './HomePage'; // Import the Homepage component
+import { Link } from 'react-router-dom';
 const api = "http://localhost:5001"
 
 function MainPage() {
@@ -36,6 +37,7 @@ function MainPage() {
     }
   };
 
+
   return (
 
     <body>
@@ -62,10 +64,14 @@ function MainPage() {
           <div class='buttons'>
             <button type="button" onClick={handleLogin}>Login</button>
           </div>
+          <div class='buttons'>
+            <button type="button"><Link to="/registerpage">Register</Link></button>
+          </div>
         </div>
       </div>
 
   </body>
+  
     
   );
 }

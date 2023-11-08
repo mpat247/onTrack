@@ -1,0 +1,91 @@
+body{
+    color: FFFFFF;
+    font-family: 'Times New Roman', Times, serif;
+}
+header{
+    background-size: cover ;
+    background-position: center bottom;
+    display: flex;
+    height: 12vw;
+}
+
+.wave-header{
+    width:100%;
+    position: relative;
+    display:flex;
+    
+}
+
+svg{
+    position:absolute;
+    bottom: 0;
+    left: 0;
+
+}
+
+#logo-container{
+    display: flex;
+    align-items: center;
+    margin-left:0.5vw;
+    margin-top:1vw;
+    height:5vw;
+    position: absolute;
+    z-index: 1;
+}
+
+#logo{
+  width:10vh;
+}
+
+#input-container{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+}
+
+#form-container{
+    display: flex;
+    flex-direction: column;
+    margin-left:5vw;
+}
+
+.input-group {
+    display:flex;
+    align-items: center;
+}
+
+label{
+    color: #333333;
+    width: 150px;
+    text-align: right;
+    margin-right: 20px;
+    font-size: 20px;
+}
+
+input{
+    padding:12px;
+    font-size: 18px;
+    border: 3px solid #333333;;
+    width: 250px;
+    color: #9C9696;
+}
+
+#username, #password, #email{
+    width: 250px;
+    margin-left: 10px;
+    
+}
+
+.buttons { 
+    text-align: right;
+}
+
+h1,h3{
+    color: black;
+    text-align: left;
+}
+
+h2{
+    color: blue;
+    text-align: left;
+}
