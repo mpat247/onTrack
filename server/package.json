@@ -19,6 +19,7 @@
   "homepage": "https://github.com/mpat247/onTrack#readme",
   "description": "Your project description here.",
   "dependencies": {
+    "crypto": "^1.0.1",
     "jsonwebtoken": "^9.0.2",
     "loader": "^2.1.1",
     "swagger-jsdoc": "^6.2.8",
