@@ -29,12 +29,14 @@ function RegistrationPage() {
             //usser has entered all fields
             //prepare data to send to the backend
             const userData = {
-                name: {username},
-                password: {password},
-                email: {email},
+                name: username,
+                password: password,
+                email: email,
             };
+            console.log(userData);
+            const response = await axios.post(`http://localhost:5001/users/register`, userData);
 
-            const response = await axios.post(`http://localhost:5003/users/register`, userData);
+            console.log(response);
 
             if (response.status === 200) {
                 setRegistrationStatus('Registration successful! Please return to homepage')

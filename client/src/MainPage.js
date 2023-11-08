@@ -13,7 +13,7 @@ function MainPage() {
   const handleLogin = async () => {
     try {
       console.log(username, password);
-      const response = await axios.get(`http://localhost:5003/users/${username}/${password}`);
+      const response = await axios.get(`http://localhost:5001/users/${username}/${password}`);
       if (response.status === 200) {
         const userData = response.data.payload.username;
         // Encode userData as a query parameter
@@ -59,7 +59,7 @@ function MainPage() {
           </div>
           <div class='input-group'>
           <label for="password">Password</label>
-            <input type="text" id="password" name="password" onChange={(e) => setPassword(e.target.value)}></input>
+            <input type="password" id="password" name="password" onChange={(e) => setPassword(e.target.value)}></input>
           </div>
           <div class='buttons'>
             <button type="button" onClick={handleLogin}>Login</button>
