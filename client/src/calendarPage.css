@@ -135,3 +135,27 @@ li a {
 li a:hover:not(.active) {
   background-color: #1b7ed4;
 }
+
+.task-card {
+  background-color: white; /* Use any color you like */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Adds a subtle shadow */
+  margin-top: 4px; /* Spacing above the card */
+  padding: 10px; /* Space inside the card */
+  text-align: left; /* Align text to the left */
+}
+
+.task-details {
+  display: flex; /* Enables flexbox */
+  flex-direction: column; /* Stacks items vertically */
+}
+
+.task-name {
+  font-size: 1rem; /* Adjust as needed */
+  margin-bottom: 4px; /* Spacing between name and date */
+}
+
+.task-date {
+  font-size: 0.8rem; /* Adjust as needed */
+  color: #666; /* A lighter text color for the date */
+}

@@ -1,94 +1,77 @@
-import './calendarPage.css';
-import React, { useState, useEffect } from 'react';
-import onTrackLogo from './onTrackLogo.png';
-import axios from 'axios';
-import { Link } from 'react-router-dom';
-import 'font-awesome/css/font-awesome.min.css';
-import Main from './MainPage.js';
-import Home from './HomePage.js';
-import RegisterPage from './Registration.js';
-const api = "http://localhost:5001"
+import React, { useEffect } from 'react';
+import './calendarPage.css'; // Ensure you have corresponding CSS
 
-const months = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
+const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const daysShort = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-
+// Dummy task data
+const tasks = [
+  { name: "Task 1", date: "2023-11-15" },
+  { name: "Task 2", date: "2023-11-30" },
+  { name: "Task 3", date: "2023-11-25" }];
 
 function CalendarPage() {
   useEffect(() => {
     const daysContainer = document.querySelector(".days");
     const nextBtn = document.querySelector(".next-btn");
     const prevBtn = document.querySelector(".prev-btn");
-    const month = document.querySelector(".month");
+    const monthElement = document.querySelector(".month");
     const todayBtn = document.querySelector(".today-btn");
 
     const date = new Date();
     let currentMonth = date.getMonth();
     let currentYear = date.getFullYear();
 
-    function renderCalendar() {
+    const renderCalendar = () => {
       date.setDate(1);
-      const firstDay = new Date(currentYear, currentMonth, 1);
-      const lastDay = new Date(currentYear, currentMonth + 1, 0);
-      const lastDayIndex = lastDay.getDay();
-      const lastDayDate = lastDay.getDate();
+      const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
       const prevLastDay = new Date(currentYear, currentMonth, 0);
-      const prevLastDayDate = prevLastDay.getDate();
-      const nextDays = 7 - lastDayIndex - 1;
-    
-      month.innerHTML = `${months[currentMonth]} ${currentYear}`;
-    
-      let days = "";
-    
-      for (let x = firstDay.getDay(); x > 0; x--) {
-        days += `<div class="day prev">${prevLastDayDate - x + 1}</div>`;
+      const lastDay = new Date(currentYear, currentMonth + 1, 0);
+      const nextDays = 7 - lastDay.getDay() - 1;
+      
+      monthElement.textContent = `${months[currentMonth]} ${currentYear}`;
+      
+      let daysHTML = "";
+      
+      for (let x = firstDayIndex; x > 0; x--) {
+        daysHTML += `<div class="day prev-day">${prevLastDay.getDate() - x + 1}</div>`;
       }
+      
+       for (let i = 1; i <= lastDay.getDate(); i++) {
+    const fullDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+    const task = tasks.find(task => task.date === fullDate);
+    let taskHTML = '';
+
+    if (task) {
+      taskHTML = `
+        <div class="task-card">
+          <div class="task-details">
+            <span class="task-name"><strong>${task.name}</strong></span>
+            <span class="task-date"><em>${task.date}</em></span>
+          </div>
+        </div>`;
+    }
     
-      for (let i = 1; i <= lastDayDate; i++) {
-        if (
-          i === new Date().getDate() &&
-          currentMonth === new Date().getMonth() &&
-          currentYear === new Date().getFullYear()
-        ) {
-          days += `<div class="day today">${i}</div>`;
-        } else {
-          days += `<div class="day ">${i}</div>`;
-        }
-      }
-    
+    if (i === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()) {
+      daysHTML += `<div class="day today">${i}${taskHTML}</div>`;
+    } else {
+      daysHTML += `<div class="day">${i}${taskHTML}</div>`;
+    }
+  }
+      
       for (let j = 1; j <= nextDays; j++) {
-        days += `<div class="day next">${j}</div>`;
+        daysHTML += `<div class="day next-day">${j}</div>`;
       }
-    
+      
+      daysContainer.innerHTML = daysHTML;
       hideTodayBtn();
-      daysContainer.innerHTML = days;
-    }
+    };
 
-    function hideTodayBtn() {
-      if (
-        currentMonth === new Date().getMonth() &&
-        currentYear === new Date().getFullYear()
-      ) {
-        todayBtn.style.display = "none";
-      } else {
-        todayBtn.style.display = "flex";
-      }
-    }
+    const hideTodayBtn = () => {
+      todayBtn.style.display = (currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()) ? 'none' : 'flex';
+    };
 
-    nextBtn.addEventListener("click", () => {
+    nextBtn.addEventListener('click', () => {
       currentMonth++;
       if (currentMonth > 11) {
         currentMonth = 0;
@@ -97,7 +80,7 @@ function CalendarPage() {
       renderCalendar();
     });
     
-    prevBtn.addEventListener("click", () => {
+    prevBtn.addEventListener('click', () => {
       currentMonth--;
       if (currentMonth < 0) {
         currentMonth = 11;
@@ -106,56 +89,40 @@ function CalendarPage() {
       renderCalendar();
     });
     
-    todayBtn.addEventListener("click", () => {
-      currentMonth = date.getMonth();
-      currentYear = date.getFullYear();
+    todayBtn.addEventListener('click', () => {
+      currentMonth = new Date().getMonth();
+      currentYear = new Date().getFullYear();
       renderCalendar();
     });
 
     renderCalendar();
-  },[]);
+  }, []);
 
   return (
-    <body>
-      <title>Calendar</title>
-            <header>
-              <ul>
-                <li><a href="/calendarpage">Calendar View</a></li>
-                <li><a href=" ">List View</a></li>
-              </ul>
-            </header>
-      <div class="container">
-        <div class="calendar">
-          <div class="header">
-            <div class="month">November, 2023</div>
-              <div class="btns">
-                <div class="btn today-btn">
-                  <i class="fas fa-calendar-day"></i>
-                </div>
-                <div class="btn prev-btn">
-                  <i class="fas fa-chevron-left"></i>
-                </div>
-                <div class="btn next-btn">
-                  <i class="fas fa-chevron-right"></i>
-                </div>
-              </div>
+    <div>
+      <header>
+        {/* Your header here */}
+      </header>
+      <div className="container">
+        <div className="calendar">
+          <div className="header">
+            <div className="month">November, 2023</div>
+            <div className="btns">
+              <div className="btn today-btn"><i className="fas fa-calendar-day"></i>Today</div>
+              <div className="btn prev-btn"><i className="fas fa-chevron-left"></i>Prev</div>
+              <div className="btn next-btn"><i className="fas fa-chevron-right"></i>Next</div>
             </div>
-          <div class="weekdays">
-            <div class="day">Sun</div>
-            <div class="day">Mon</div>
-            <div class="day">Tue</div>
-            <div class="day">Wed</div>
-            <div class="day">Thu</div>
-            <div class="day">Fri</div>
-            <div class="day">Sat</div>
           </div>
-          <div class="days"> 
+          <div className="weekdays">
+            {daysShort.map(day => <div key={day} className="weekday">{day}</div>)}
+          </div>
+          <div className="days">
+            {/* Days will be rendered here */}
           </div>
         </div>
       </div>
-    </body>
-    
+    </div>
   );
 }
-export default CalendarPage;
 
+export default CalendarPage;
