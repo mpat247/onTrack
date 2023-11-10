@@ -269,9 +269,6 @@ router.post("/register", async (req, res) => {
             }
 
             const code = generate32BitRandomCode();
-            console.log(typeof(code));
-            console.log(code);  // Example output: "5F3A4C1B"
-
             let auth = "N";
 
             // Insert query to insert the new task into the database -- fix this
@@ -282,7 +279,6 @@ router.post("/register", async (req, res) => {
                 }
             );
             
-
             await connection.commit();
 
             // Success response
