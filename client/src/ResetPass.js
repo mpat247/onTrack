@@ -1,10 +1,10 @@
-import './ResetPassword.css';
+import './ResetPass.css';
 import React, { useState } from 'react';
 import onTrackLogo from './onTrackLogo.png';
 import MainPage from './MainPage';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 const api = "http://localhost:5001"
-
 
 function ResetPass() {
 
@@ -25,7 +25,6 @@ function ResetPass() {
                 setStatusString('The two passwords do not match.')
             }
             else {
-                console.log(checkEmail);
                 
                 const newData = {
                     password: newPassword,
@@ -38,8 +37,9 @@ function ResetPass() {
                     setStatusString('Password has been successfully updated! Redirecting to login page...')
 
                     setTimeout(() => {
-                        window.location.href('/onTrack');
+                        window.location.href = '/onTrack';
                     }, 5000);
+                    
                 }
                 else if (response.status === 500) {
                     setStatusString('Invalid request.')

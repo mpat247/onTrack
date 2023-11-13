@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import onTrackLogo from './onTrackLogo.png';
 import MainPage from './MainPage';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
 const api = "http://localhost:5001"
 
 function ForgotPassPage() {
@@ -19,8 +20,10 @@ function ForgotPassPage() {
             }
             else {
                 console.log(checkEmail);
+
+                const userData = {email: checkEmail};
                 
-                const response = await axios.get(`http://localhost:5001/users/reset`, checkEmail);
+                const response = await axios.get(`http://localhost:5001/users/reset?email=${encodeURIComponent(checkEmail)}`);
                 console.log(response);
                 if (response.status === 200) {
                     setStatusString('An email has been sent to your inbox. Please check your email for the reset password link.')
