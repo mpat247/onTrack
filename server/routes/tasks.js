@@ -394,3 +394,85 @@ router.delete("/:id", async (req, res) => {
 });
 
 module.exports = router;
+
+/**
+ * @swagger
+ * /tasks/{id}:
+ *   put:
+ *     summary: Update a task by ID
+ *     description: Update an existing task by its unique ID.
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: The ID of the task to update.
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: The updated name of the task.
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The updated start date of the task.
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The updated end date of the task.
+ *     responses:
+ *       200:
+ *         description: Task updated successfully
+ *         content:
+ *           application/json:
+ *             example:
+ *               task: { id: 1, name: "Updated Task", startDate: "2023-11-15", endDate: "2023-11-30" }
+ */
+
+// Task Specifics
+router.put("/:id", async (req, res) => {
+    // Get parameters to edit
+    const { id: taskId } = req.params;
+    const { name, startDate, endDate } = req.body;
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        try {
+            // Update query
+            const result = await connection.execute(
+                `UPDATE TASK 
+                 SET TASK_NAME = :name, 
+                     TASK_STARTDATE = TO_DATE(:startDate, 'YYYY-MM-DD'), 
+                     TASK_ENDDATE = TO_DATE(:endDate, 'YYYY-MM-DD') 
+                 WHERE TASK_ID = :taskId`,
+                { name, startDate, endDate, taskId }
+            );
+
+            // Check if the task was updated successfully
+            if (result.rowsAffected === 1) {
+                res.status(200).send({ data: "Task updated successfully" });
+            } else {
+                res.status(404).send({ error: "Task not found" });
+            }
+        } catch (error) {
+            res.status(500).send({ error: "Database Query Error", details: error.message });
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+        }
+    } catch (error) {
+        res.status(500).send({ error: "Database Connection Error", details: error.message });
+    }
+});
