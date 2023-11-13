@@ -73,7 +73,7 @@ router.get("/:name/:password", async (req, res) => {
     }
 });
 
-// Get User by Name and Password
+// Authenticate User
 router.get("/auth", async (req, res) => {
     const { name, code } = req.body;
 
@@ -84,7 +84,7 @@ router.get("/auth", async (req, res) => {
     try {
         const connection = await oracledb.getConnection(dbConfig);
 
-        // Perform a query to retrieve a user by name and password
+        // authenticate user using name and code
         const query = `
             SELECT * FROM ACCOUNT
             WHERE USER_NAME = :name
