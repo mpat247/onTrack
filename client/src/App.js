@@ -4,6 +4,7 @@ import Calendar from './CalendarPage.js';
 import Main from './MainPage.js';
 import Home from './HomePage.js';
 import RegisterPage from './Registration.js';
+import ForgotPassPage from './ForgotPass.js';
 import './App.css';
 
 function App() {
@@ -14,6 +15,7 @@ function App() {
         <Route path="/onTrack" element={<Main />} />
         <Route path="/homepage" element={<Home />} />
         <Route path="/registerpage" element={<RegisterPage />} />
+        <Route path="/forgotpassword" element={<ForgotPassPage />} />
       </Routes>
     </Router>
   );

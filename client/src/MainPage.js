@@ -61,6 +61,9 @@ function MainPage() {
           <label for="password">Password</label>
             <input type="password" id="password" name="password" onChange={(e) => setPassword(e.target.value)}></input>
           </div>
+          <div>
+            <button type="button"><Link to="/forgotpassword">Forgot Password</Link></button>
+          </div>
           <div class='buttons'>
             <button type="button" onClick={handleLogin}>Login</button>
           </div>

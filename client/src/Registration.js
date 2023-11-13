@@ -11,6 +11,8 @@ function RegistrationPage() {
 
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    //add in another field to confirm that the user enters the same passwords
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [email, setEmail] = useState('');
     const [registrationStatus, setRegistrationStatus] = useState('');
 
@@ -22,12 +24,18 @@ function RegistrationPage() {
         
         try {
             //first check that user input all data fields
-            if (!username || !password || !email) {
+            if (!username || !password || !confirmPassword ||!email) {
                 setRegistrationStatus('All fields are required.');
                 return;
             }
+            
+            //check that the passwords entered match
+            if (password !== confirmPassword) {
+                setRegistrationStatus('Passwords do not match.');
+                return;
+            }
 
-            //usser has entered all fields
+            //user has entered all fields
             //prepare data to send to the backend
             const userData = {
                 name: username,
@@ -38,10 +46,16 @@ function RegistrationPage() {
             const response = await axios.post(`http://localhost:5001/users/register`, userData);
 
             console.log(response);
-
+            //user successfully registers
+            //wait 5 seconds and redirect page to login page
             if (response.status === 200) {
-                setRegistrationStatus('Registration successful! Please return to homepage')
-            }
+                setRegistrationStatus('Registration successful! Redirecting to login page...')
+
+                setTimeout(() => {
+                    window.location.href('/onTrack');
+                }, 5000);
+            } 
+            //registration not valid
             else {
                 setRegistrationStatus('Uh-oh, registration failed. There is already a user with this username or email.');
             }
@@ -78,8 +92,12 @@ function RegistrationPage() {
                     </div>
                     <div class='input-group'>
                         <label for="password">Password</label>
-                        <input type="text" id="password" name="password"
+                        <input type="password" id="passw" name="passw"
                         placeholder='letters, numbers, a special character' onChange={(e) => setPassword(e.target.value)}></input>
+                    </div>
+                    <div class='input-group'>
+                        <label for="confirmPassword">Confirm Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" onChange={(e) => setConfirmPassword(e.target.value)}></input>
                     </div>
                     <div class ='input-group'>
                         <label for="email">Email</label>
