@@ -123,7 +123,7 @@ router.get("/auth", async (req, res) => {
 
 // Get User by Name and Password
 router.get("/reset", async (req, res) => {
-    const { email} = req.body;
+    const { email} = req.query;
 
     if (!email) {
         return res.status(400).send({ error: "Email is required." });
@@ -173,7 +173,7 @@ router.get("/reset", async (req, res) => {
                 from: "imagegenerator6@gmail.com",
                 to: userData.email,
                 subject: "Email Verification for onTrack Application",
-                text: "Please click the following link to verify your email: http://example.com/verify"
+                text: "Please click the following link to verify your email: http://localhost:3000/resetpassword"
             };
 
         
