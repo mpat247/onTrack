@@ -4,9 +4,6 @@ import onTrackLogo from './onTrackLogo.png';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
 import 'font-awesome/css/font-awesome.min.css';
-import Main from './MainPage.js';
-import Home from './HomePage.js';
-import RegisterPage from './Registration.js';
 const api = "http://localhost:5001"
 
 const months = [
@@ -27,9 +24,9 @@ const months = [
 const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const tasks = [
-  { name: "CPS714 Labbbbbb", date: "2023-11-15" },
-  { name: "Hello", date: "2023-11-30" },
-  { name: "CPS 613 Lab", date: "2023-11-25" }
+  { name: "CPS714 Labbbbbb", date: "2023-11-15", progress:1},
+  { name: "Hello", date: "2023-11-30", progress:0 },
+  { name: "CPS 613 Lab", date: "2023-11-25", progress:2 }
 ];
 
 const progress =["To-do", "Doing", "Done"];
@@ -77,7 +74,7 @@ function CalendarPage() {
             <div class="task-card">
               <div class="task-details">
                 <span class="task-name"><strong>${task.name}</strong></span>
-                <span class="task-progress"><em>${progress[0]}</em></span>
+                <span class="task-progress"><em>${progress[task.progress]}</em></span>
               </div>
             </div>`;
         }
