@@ -30,6 +30,7 @@ const tasks = [
 ];
 
 const progress =["To-do", "Doing", "Done"];
+const progressColors = ["todo", "doing", "done"];
 
 function CalendarPage() {
   useEffect(() => {
@@ -61,8 +62,6 @@ function CalendarPage() {
         days += `<div class="day prev">${prevLastDayDate - x + 1}</div>`;
       }
     
-        
-
 
       for (let i = 1; i <= lastDay.getDate(); i++) {
         const fullDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
@@ -70,11 +69,15 @@ function CalendarPage() {
         let taskHTML = '';
 
         if (task) {
+          const progressClass = `progress-${progress[task.progress].toLowerCase()}`;
           taskHTML = `
             <div class="task-card">
               <div class="task-details">
                 <span class="task-name"><strong>${task.name}</strong></span>
-                <span class="task-progress"><em>${progress[task.progress]}</em></span>
+                <span class="task-progress">
+                  <span class="progress-pill ${progressColors[task.progress]}"></span>
+                  <em>${progress[task.progress]}</em>
+                </span>
               </div>
             </div>`;
         }

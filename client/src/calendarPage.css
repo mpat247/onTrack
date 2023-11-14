@@ -3,6 +3,9 @@
   --primary-color: #0074d9;
   --text-color: #1d1d1d;
   --bg-color: #f1f1fb;
+  --todo-color: #ff4d4d;
+  --doing-color: #ffa500;
+  --done-color: #4caf50;
 }
 * {
   margin: 0;
@@ -109,6 +112,30 @@ body {
   color: #ccc;
 }
 
+.days .day .task-card .task-details .task-progress {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.days .day .task-card .task-details .task-progress .progress-pill {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+.days .day .task-card .task-details .task-progress .progress-pill.todo {
+  background-color: var(--todo-color);
+}
+
+.days .day .task-card .task-details .task-progress .progress-pill.doing {
+  background-color: var(--doing-color);
+}
+
+.days .day .task-card .task-details .task-progress .progress-pill.done {
+  background-color: var(--done-color);
+}
 
 ul {
   width: 100%;
