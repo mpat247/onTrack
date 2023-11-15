@@ -264,13 +264,8 @@ li a:hover:not(.active) {
 
 /* Styling for the list in the header */
 ul {
-  position: absolute;
-  top: 0;
-  left: 0;
   list-style-type: none;
-  margin: 0;
   padding: 0;
-  background-color: transparent;
 }
 
 ul li {
@@ -306,54 +301,3 @@ ul li {
   margin-right: 10px; /* Space between checkbox and label */
 }
 
-/* Header styling */
-header {
-  width: 100%;
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  position: relative;
-  background-color: #79addc; /* Example background color */
-  overflow: hidden; /* Ensures no overflow from the wave */
-}
-
-/* Existing CSS */
-
-/* Wave header styling */
-.wave-header {
-  width: 100%;
-  position: absolute;
-  bottom: 0;
-  overflow: hidden;
-}
-
-/* SVG styling */
-svg {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  height: auto; /* This ensures the SVG scales correctly */
-}
-
-/* Logo container */
-#logo-container {
-  position: absolute;
-  right: 0;
-  top: 0;
-  display: flex;
-  align-items: center;
-}
-
-/* Rest of your existing CSS */
-
-
-/* Logo image styling */
-#logo {
-  width: 10vh;
-}
-
-#title {
-  font-size: 8vh;
-  margin-left: 1vw;
-  color: white;
-}
