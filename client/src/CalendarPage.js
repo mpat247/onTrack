@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import onTrackLogo from './onTrackLogo.png';
 import axios from 'axios';
 import './calendarPage.css';
 import 'font-awesome/css/font-awesome.min.css';
@@ -16,6 +17,7 @@ const progressColors = ["todo", "doing", "done"];
 function CalendarPage() {
   const [tasks, setTasks] = useState([]);
   const [userName, setUserName] = useState('');
+  const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'list'
 
   useEffect(() => {
     const userDataString = localStorage.getItem('storageName');
@@ -29,22 +31,36 @@ function CalendarPage() {
       fetchTasks(userID);
     }
   }, []);
+ 
+  useEffect(() => {
+    // Initial render of the calendar
+    const date = new Date();
+    renderCalendar(date.getMonth(), date.getFullYear());
+  }, [tasks]);
 
   async function fetchTasks(userID) {
     try {
       const response = await axios.get(`http://localhost:5001/tasks/${userID}`);
       if (response.status === 200) {
-        setTasks(response.data.data.map(task => ({
+        const updatedTasks = response.data.data.map(task => ({
           ...task,
           displayDate: task.enddate.split('T')[0] // Extracting the date part
-        })));
+        }));
+        setTasks(updatedTasks);
+  
+        // Call renderCalendar after state update
+        const date = new Date();
+        renderCalendar(date.getMonth(), date.getFullYear());
       }
     } catch (error) {
       console.error('Error fetching tasks:', error);
     }
   }
+  
 
   function renderCalendar(currentMonth, currentYear) {
+    if (viewMode !== 'calendar') return;
+
     const daysContainer = document.querySelector(".days");
     const monthLabel = document.querySelector(".month");
 
@@ -99,6 +115,11 @@ function CalendarPage() {
 
   useEffect(() => {
     const date = new Date();
+    renderCalendar(date.getMonth(), date.getFullYear());
+  }, [viewMode, tasks]);
+
+  useEffect(() => {
+    const date = new Date();
     let currentMonth = date.getMonth();
     let currentYear = date.getFullYear();
 
@@ -133,47 +154,92 @@ function CalendarPage() {
     window.location.href = 'http://localhost:3000/onTrack'; // Redirect after sign out
   }
 
+  function renderListView() {
+    return (
+      <div className="task-list">
+        <h2>Your Tasks:</h2>
+        {tasks.map(task => (
+          <div className="task-item" key={task.taskId}>
+            <label htmlFor={`task-${task.taskId}`}>
+              <input type="checkbox" id={`task-${task.taskId}`} />
+              <strong>{task.taskname}</strong>
+              <p>End Date: {task.enddate.split('T')[0]}</p>
+              <p>Status: {progress[task.progress]}</p>
+            </label>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  
+
   return (
     <body>
       <title>Calendar</title>
       <header>
+        <div className="wave-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#79addc" fillOpacity="1" d="M0,320L60,304C120,288,240,256,360,229.3C480,203,600,181,720,176C840,171,960,181,1080,181.3C1200,181,1320,171,1380,165.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
+          </svg>
+        </div>
+        <div id='logo-container'> 
+          <img src={onTrackLogo} id='logo' alt="Logo" />
+          <div id='title'>onTrack</div>
+        </div>
         <ul>
-          <li><a href="/calendarpage">Calendar View</a></li>
-          <li><a href="/">List View</a></li>
+          <li><button className="view-mode-button" onClick={() => setViewMode('calendar')}>Calendar View</button></li>
+          <li><button className="view-mode-button" onClick={() => setViewMode('list')}>List View</button></li>
         </ul>
       </header>
-      <div class ="buttons">
-  <button onClick={handleSignOut}>
-    Logout
-  </button>
-</div>
-
+      <div className="buttons">
+        <button onClick={handleSignOut}>
+          Logout
+        </button>
+      </div>
       <div className='input-group'>
         <h1>Welcome {userName}</h1>
       </div>
       <div className="container">
-        <div className="calendar">
-          <div className="header">
-            <div className="month">November, 2023</div>
-            <div className="btns">
-              <div className="btn today-btn">
-                <i className="fas fa-calendar-day"></i>
-              </div>
-              <div className="btn prev-btn">
-                <i className="fas fa-chevron-left"></i>
-              </div>
-              <div className="btn next-btn">
-                <i className="fas fa-chevron-right"></i>
+        {viewMode === 'calendar' ? (
+          <div className="calendar">
+            <div className="header">
+              <div className="month">November, 2023</div>
+              <div className="btns">
+                <div className="btn today-btn">
+                  <i className="fas fa-calendar-day"></i>
+                </div>
+                <div className="btn prev-btn">
+                  <i className="fas fa-chevron-left"></i>
+                </div>
+                <div className="btn next-btn">
+                  <i className="fas fa-chevron-right"></i>
+                </div>
               </div>
             </div>
+            <div className="weekdays">
+              <div className="day">Sun</div>
+              <div className="day">Mon</div>
+              <div className="day">Tue</div>
+              <div className="day">Wed</div>
+              <div className="day">Thu</div>
+              <div className="day">Fri</div>
+              <div className="day">Sat</div>
+            </div>
+            <div class="days">
+            </div>
           </div>
-          <div className="weekdays">
-            {/* Weekdays... */}
+        ) : (
+          <div className="task-list" style={{  overflowY: 'scroll' }}>
+            {tasks.map(task => (
+              <div className="task-item" key={task.taskId}>
+                <h3>{task.taskname}</h3>
+                <p>End Date: {task.enddate.split('T')[0]}</p>
+                <p>Status: {progress[task.progress]}</p>
+              </div>
+            ))}
           </div>
-          <div className="days"> 
-            {/* Days will be rendered here */}
-          </div>
-        </div>
+        )}
       </div>
     </body>
   );
