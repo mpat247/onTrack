@@ -3,6 +3,9 @@
   --primary-color: #0074d9;
   --text-color: #1d1d1d;
   --bg-color: #f1f1fb;
+  --todo-color: #ff4d4d;
+  --doing-color: #ffa500;
+  --done-color: #4caf50;
 }
 * {
   margin: 0;
@@ -94,7 +97,34 @@ body {
   background-color: #f1f1fb;
   transition: all 0.3s;
   padding: 10px;
+  position: relative;
 }
+.days .day .task-card {
+  position: absolute;
+  bottom: 10px; /* Position the task-card at the bottom of the day */
+  left: 10px;
+  width: 90%;
+  max-height: 50%; /* Set a maximum height for the task-card */
+  overflow: hidden; /* Hide overflow content */
+  z-index: 1; /* Ensure the task-card is above the next/prev days */
+  padding: 5px; /* Add some padding for better spacing */
+}
+
+.days .day .task-card .task-details .task-progress {
+  font-size: 0.8rem; /* Adjust the font size */
+}
+
+.days .day .task-card .task-details {
+  max-height: 100%; /* Limit the maximum height of task details */
+}
+
+.days .day .task-card .task-details .task-name {
+  white-space: nowrap; /* Prevent text from wrapping to the next line */
+  overflow: hidden; /* Hide overflowing text */
+  text-overflow: ellipsis; /* Show ellipsis (...) for hidden text */
+}
+
+
 .days .day:not(.next):not(.prev):hover {
   color: #fff;
   background-color: var(--primary-color);
@@ -109,6 +139,32 @@ body {
   color: #ccc;
 }
 
+
+
+.days .day .task-card .task-details .task-progress {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.days .day .task-card .task-details .task-progress .progress-pill {
+  width: 10px;
+  height: 10px;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+.days .day .task-card .task-details .task-progress .progress-pill.todo {
+  background-color: var(--todo-color);
+}
+
+.days .day .task-card .task-details .task-progress .progress-pill.doing {
+  background-color: var(--doing-color);
+}
+
+.days .day .task-card .task-details .task-progress .progress-pill.done {
+  background-color: var(--done-color);
+}
 
 ul {
   width: 100%;
