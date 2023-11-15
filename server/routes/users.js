@@ -60,9 +60,38 @@ router.get("/:name/:password", async (req, res) => {
                 username: result.rows[0][1],
                 password: result.rows[0][2],
                 email: result.rows[0][3],
-                code: result.rows[0][4]
+                code: result.rows[0][4],
+                authenticate: result.rows[0][5]
             };
-            res.status(200).json({msg:"User Found", payload: userData });
+            console.log(userData.email);
+
+            // Create a nodemailer transporter
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: "imagegenerator6@gmail.com", // your email address
+                    pass: "hlxc lvba sacz qgas" // your email password
+                }
+            });
+        
+            // Email content
+            const mailOptions = {
+                from: "imagegenerator6@gmail.com",
+                to: userData.email,
+                subject: "User Authentication for onTrack Application",
+                text: `Your code is: ${userData.code}.`
+            };
+
+            // Send the email
+            transporter.sendMail(mailOptions, function(error, info) {
+                if (error) {
+                    console.error("Email sending failed:", error);
+                    res.status(500).json({ error: "Email sending failed" });
+                } else {
+                    console.log("Email sent:", info.response);
+                    res.status(200).json({ msg: "User Found and Email Sent", payload: userData });
+                }
+            });
         } else {
             // User not found
             res.status(404).json({ error: "User not found" });
@@ -75,7 +104,7 @@ router.get("/:name/:password", async (req, res) => {
 
 // Authenticate User
 router.get("/auth", async (req, res) => {
-    const { name, code } = req.body;
+    const { name, code } = req.params;
 
     if (!name || !code) {
         return res.status(400).send({ error: "Both name and code values are required" });
@@ -108,7 +137,9 @@ router.get("/auth", async (req, res) => {
                 id: result.rows[0],
                 username: result.rows[0][1],
                 password: result.rows[0][2],
-                email: result.rows[0][3]
+                email: result.rows[0][3],
+                code: result.rows[0][4],
+                authenticate: result.rows[0][5]
             };
             res.status(200).json({msg:"User Found", payload: userData });
         } else {
