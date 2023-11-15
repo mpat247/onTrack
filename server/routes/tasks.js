@@ -79,25 +79,39 @@ router.get("/", async (req, res) => {
  */
 
 // Fetch task based on ID
-router.get("/:id", async (req, res) => {
-    const { id: taskId } = req.params;
+router.get("/:userId", async (req, res) => {
+    const { userId } = req.params;
+    console.log(userId)
 
     try {
         const connection = await oracledb.getConnection(dbConfig);
 
         try {
-            // Query to check if the task exists
+            // Query to fetch tasks for the user
             const result = await connection.execute(
-                `SELECT * FROM tasks WHERE task_id = :taskId`,
-                { taskId }
+                `SELECT * FROM TASK WHERE USER_ID = :userId`,
+                { userId: userId } // Make sure userId is correctly formatted as per the database
             );
 
-            // If the task exists, return it
-            if (result.rows.length === 1) {
-                const taskData = result.rows[0];
-                res.status(200).send({ data: taskData, message: "Task found!" });
+            // Check if any task exists
+            if (result.rows.length > 0) {
+                // Create an array of tasks
+                const tasks = result.rows.map((row) => {
+                    return {
+                        taskId: row[0],
+                        taskname: row[1],
+                        description: row[2],
+                        userid: row[3],
+                        createdate: row[4],
+                        enddate: row[5],
+                        priority: row[6],
+                        progress: row[7]
+                    };
+                });
+            
+                res.status(200).send({ data: tasks, message: "Tasks found!" });
             } else {
-                res.status(404).send({ error: "Task not found" });
+                res.status(404).send({ error: "Tasks not found" });
             }
         } catch (error) {
             res.status(500).send({ error: "Database Query Error", details: error.message });
@@ -114,6 +128,7 @@ router.get("/:id", async (req, res) => {
         res.status(500).send({ error: "Database Connection Error", details: error.message });
     }
 });
+
 
 /**
  * @swagger
@@ -285,42 +300,77 @@ router.post("/", async (req, res) => {
  *           schema:
  *             type: object
  *             properties:
- *               description:
+ *               name:
  *                 type: string
- *                 description: The updated description of the task.
+ *                 description: The updated name of the task.
+ *               startDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The updated start date of the task.
+ *               endDate:
+ *                 type: string
+ *                 format: date
+ *                 description: The updated end date of the task.
  *     responses:
  *       200:
  *         description: Task updated successfully
  *         content:
  *           application/json:
  *             example:
- *               task: { id: 1, description: "Updated Task" }
+ *               task: { id: 1, name: "Updated Task", startDate: "2023-11-15", endDate: "2023-11-30" }
  */
 
-// Edit Task
-router.put("/:id", async (req, res) => {
+// Task Specifics
+router.put("/", async (req, res) => {
     // Get parameters to edit
-    const { id: taskId } = req.params;
-    const { description } = req.body; // Assuming you pass data in the request body
-
+    const { id, task, description, enddate, progress, priority } = req.body;
     try {
         const connection = await oracledb.getConnection(dbConfig);
+        if (!id) {
+            return res.status(400).send({ error: "Task Id is required" });
+        }
+
+        // Check if the user exists
+        let taskexists = false;
+        try {
+            const userConnection = await oracledb.getConnection(dbConfig);
+            const userResult2 = await userConnection.execute(
+                `SELECT * FROM TASK WHERE TASK_ID = :id`,
+                {id}
+            );
+            taskexists = userResult2.rows.length > 0;
+            await userConnection.close();
+            
+        } catch (error) {
+            console.error("Error checking task existence: ", error);
+            return res.status(500).send({ error: "Database Error", details: error.message });
+        }
+
+        if (!taskexists) {
+            return res.status(400).send({ error: "Task doesn't exist" });
+        }
 
         try {
-            // Update query (example: if (name) { update name field })
-            // Example:
-            // const result = await connection.execute(
-            //     `UPDATE tasks SET description = :description WHERE task_id = :taskId`,
-            //     { description, taskId }
-            // );
+            // Update query
+            const result = await connection.execute(
+                `UPDATE TASK 
+                 SET TASK_NAME = :task, 
+                     TASK_DESCRIPTION = :description, 
+                     TASK_ENDDATE = TO_TIMESTAMP_TZ(:enddate, 'YYYY-MM-DD"T"HH24:MI:SS.FF3"Z"'), 
+                     TASK_PROGRESS = :progress, 
+                     TASK_PRIORITY = :priority 
+                 WHERE TASK_ID = :id`,
+                { task, description, enddate, progress, priority, id }
+            );
+            await connection.commit();
 
-            // Success or fail response
-            // Example:
-            // if (result.rowsAffected === 1) {
-            //     res.status(200).send({ data: "Task updated successfully" });
-            // } else {
-            //     res.status(404).send({ error: "Task not found" });
-            // }
+
+            // Check if the task was updated successfully
+            if (result.rowsAffected === 1) {
+                res.status(200).send({ data: "Task updated successfully" });
+            } else {
+                res.status(404).send({ error: "Task not found" });
+            }
         } catch (error) {
             res.status(500).send({ error: "Database Query Error", details: error.message });
         } finally {
@@ -395,84 +445,4 @@ router.delete("/:id", async (req, res) => {
 
 module.exports = router;
 
-/**
- * @swagger
- * /tasks/{id}:
- *   put:
- *     summary: Update a task by ID
- *     description: Update an existing task by its unique ID.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The ID of the task to update.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: The updated name of the task.
- *               startDate:
- *                 type: string
- *                 format: date
- *                 description: The updated start date of the task.
- *               endDate:
- *                 type: string
- *                 format: date
- *                 description: The updated end date of the task.
- *     responses:
- *       200:
- *         description: Task updated successfully
- *         content:
- *           application/json:
- *             example:
- *               task: { id: 1, name: "Updated Task", startDate: "2023-11-15", endDate: "2023-11-30" }
- */
 
-// Task Specifics
-router.put("/:id", async (req, res) => {
-    // Get parameters to edit
-    const { id: taskId } = req.params;
-    const { name, startDate, endDate } = req.body;
-
-    try {
-        const connection = await oracledb.getConnection(dbConfig);
-
-        try {
-            // Update query
-            const result = await connection.execute(
-                `UPDATE TASK 
-                 SET TASK_NAME = :name, 
-                     TASK_STARTDATE = TO_DATE(:startDate, 'YYYY-MM-DD'), 
-                     TASK_ENDDATE = TO_DATE(:endDate, 'YYYY-MM-DD') 
-                 WHERE TASK_ID = :taskId`,
-                { name, startDate, endDate, taskId }
-            );
-
-            // Check if the task was updated successfully
-            if (result.rowsAffected === 1) {
-                res.status(200).send({ data: "Task updated successfully" });
-            } else {
-                res.status(404).send({ error: "Task not found" });
-            }
-        } catch (error) {
-            res.status(500).send({ error: "Database Query Error", details: error.message });
-        } finally {
-            if (connection) {
-                try {
-                    await connection.close();
-                } catch (err) {
-                    console.error(err.message);
-                }
-            }
-        }
-    } catch (error) {
-        res.status(500).send({ error: "Database Connection Error", details: error.message });
-    }
-});

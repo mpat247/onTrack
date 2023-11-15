@@ -56,14 +56,14 @@ router.get("/:name/:password", async (req, res) => {
         if (result.rows && result.rows.length > 0) {
             // User found
             const userData = {
-                id: result.rows[0],
+                userId: result.rows[0][0],
                 username: result.rows[0][1],
                 password: result.rows[0][2],
                 email: result.rows[0][3],
                 code: result.rows[0][4],
                 authenticate: result.rows[0][5]
             };
-            console.log(userData.email);
+            console.log(userData);
 
             // Create a nodemailer transporter
             const transporter = nodemailer.createTransport({
@@ -103,7 +103,7 @@ router.get("/:name/:password", async (req, res) => {
 });
 
 // Authenticate User
-router.get("/auth", async (req, res) => {
+router.get("/auth/:name/:code", async (req, res) => {
     const { name, code } = req.params;
 
     if (!name || !code) {
@@ -134,7 +134,7 @@ router.get("/auth", async (req, res) => {
         if (result.rows && result.rows.length > 0) {
             // User found
             const userData = {
-                id: result.rows[0],
+                userId: result.rows[0],
                 username: result.rows[0][1],
                 password: result.rows[0][2],
                 email: result.rows[0][3],
