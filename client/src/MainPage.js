@@ -9,10 +9,11 @@ const api = "http://localhost:5001"
 function MainPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [userId, setId] = useState('');
   const [loginStatus, setLoginStatus] = useState(null);
   const [code, setCode] = useState(''); // State for the code input
   const [showPopup, setShowPopup] = useState(false); // State to control the popup visibility
-  var newName = '';
+  const [newName, setNewName] = useState(''); // State for newName
 
 
   const handleLogin = async () => {
@@ -20,9 +21,10 @@ function MainPage() {
       console.log(username, password);
       const response = await axios.get(`http://localhost:5001/users/${username}/${password}`);
       if (response.status === 200) {
+        setNewName(response.data.payload.username); // Update newName using setNewName
+        console.log(response.data.payload.userId)
+        setId(response.data.payload.userId); // Update newName using setNewName
         setShowPopup(true); // Show the popup for additional verification
-        newName = response.data.payload.username
-        
       } else if (response.status === 404) {
         console.log('User not found');
         setLoginStatus('User not found');
@@ -41,11 +43,13 @@ function MainPage() {
       console.log(code);
       const response = await axios.get(`http://localhost:5001/users/auth/${username}/${code}`);
       if (response.status === 200) {
-        const userData = newName;
-        
+        const userData = newName; // Accessing newName from the state
+        console.log(userData);
+        console.log(userId);
         //window.location.href = `http://localhost/homepage`;
         localStorage.setItem('storageName', userData);
-        window.location = `http://localhost:3000/homepage`;
+        localStorage.setItem('storage2', userId);
+        window.location = `http://localhost:3000/calendarpage`;
 
       } else if (response.status === 404) {
         console.log('Code not valid');
