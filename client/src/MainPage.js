@@ -10,19 +10,18 @@ function MainPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loginStatus, setLoginStatus] = useState(null);
+  const [code, setCode] = useState(''); // State for the code input
+  const [showPopup, setShowPopup] = useState(false); // State to control the popup visibility
+  var newName = '';
+
+
   const handleLogin = async () => {
     try {
       console.log(username, password);
       const response = await axios.get(`http://localhost:5001/users/${username}/${password}`);
       if (response.status === 200) {
-        const userData = response.data.payload.username;
-        // Encode userData as a query parameter
-        const userDataParam = encodeURIComponent(JSON.stringify(userData));
-  
-        // Construct the URL with the query parameter
-        //window.location.href = `http://localhost/homepage`;
-        localStorage.setItem('storageName', userData);
-        window.location = `http://localhost:3000/homepage`;
+        setShowPopup(true); // Show the popup for additional verification
+        newName = response.data.payload.username
         
       } else if (response.status === 404) {
         console.log('User not found');
@@ -36,7 +35,31 @@ function MainPage() {
       setLoginStatus('Network error');
     }
   };
-a
+
+  const handleCodeVerification = async () => {
+    try {
+      console.log(code);
+      const response = await axios.get(`http://localhost:5001/users/auth/${username}/${code}`);
+      if (response.status === 200) {
+        const userData = newName;
+        
+        //window.location.href = `http://localhost/homepage`;
+        localStorage.setItem('storageName', userData);
+        window.location = `http://localhost:3000/homepage`;
+
+      } else if (response.status === 404) {
+        console.log('Code not valid');
+        setLoginStatus('Code not valid');
+      } else {
+        console.log('Server error');
+        setLoginStatus('Server error');
+      }
+    } catch (error) {
+      console.error('Axios error:', error);
+      setLoginStatus('Network error');
+    } 
+  };
+
 
   return (
 
@@ -61,11 +84,11 @@ a
           <label for="password">Password</label>
             <input type="password" id="password" name="password" onChange={(e) => setPassword(e.target.value)}></input>
           </div>
-          <div>
-            <button type="button"><Link to="/forgotpassword">Forgot Password</Link></button>
-          </div>
           <div class='buttons'>
             <button type="button" onClick={handleLogin}>Login</button>
+          </div>
+          <div class='buttons'>
+            <button type="button"><Link to="/forgotpassword">Forgot Password</Link></button>
           </div>
           <div class='buttons'>
             <button type="button"><Link to="/registerpage">Register</Link></button>
@@ -73,7 +96,22 @@ a
         </div>
       </div>
 
+      {showPopup && (
+        <div id='popup-container'>
+          <div id='popup-card'>
+            <label htmlFor="code">Code:</label>
+            <input
+              type="text"
+              id="code"
+              name="code"
+              onChange={(e) => setCode(e.target.value)}
+            />
+            <button type="button" onClick={handleCodeVerification}>Verify Code</button>
+          </div>
+        </div>
+      )}
   </body>
+  
   
     
   );

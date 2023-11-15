@@ -33,6 +33,8 @@ const progress =["To-do", "Doing", "Done"];
 const progressColors = ["todo", "doing", "done"];
 
 function CalendarPage() {
+  var userData = localStorage.getItem('storageName'); 
+  console.log(userData);
   useEffect(() => {
     const daysContainer = document.querySelector(".days");
     const nextBtn = document.querySelector(".next-btn");
@@ -144,7 +146,14 @@ function CalendarPage() {
                 <li><a href=" ">List View</a></li>
               </ul>
             </header>
+            <div class='input-group'>
+            <h1>Welcome {userData}</h1>
+          </div>
       <div class="container">
+     
+
+
+
         <div class="calendar">
           <div class="header">
             <div class="month">November, 2023</div>
