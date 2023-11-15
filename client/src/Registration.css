@@ -38,11 +38,29 @@ svg{
 }
 
 
-#form-container{
+/* ... (existing styles) */
+
+.center-container {
     display: flex;
     flex-direction: column;
-    margin-left:5vw;
+    align-items: center; /* Center horizontally */
+    justify-content: center; /* Center vertically if needed */
+    text-align: center; /* Center the text of the child elements */
+    margin-top: 20px; /* Adjust as needed */
+    margin-bottom: 50px; /* Add extra space at the bottom */
 }
+
+#form-container {
+    width: 50%; /* Adjust the width as needed */
+    margin: 0 auto; /* Center the form */
+    padding: 20px; /* Add some padding */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Optional: add shadow for better visibility */
+    border-radius: 10px; /* Optional: round corners */
+    background-color: white; /* Optional: set a background color */
+}
+
+/* ... (rest of your styles) */
+
 
 .input-group {
     display:flex;

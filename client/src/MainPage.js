@@ -25,16 +25,16 @@ function MainPage() {
         console.log(response.data.payload.userId)
         setId(response.data.payload.userId); // Update newName using setNewName
         setShowPopup(true); // Show the popup for additional verification
-      } else if (response.status === 404) {
-        console.log('User not found');
+      }
+    }catch (error) {
+      console.error('Axios error:', error);
+      if (error.response && error.response.status === 404) {
+        // Handle 404 specifically
         setLoginStatus('User not found');
       } else {
-        console.log('Server error');
-        setLoginStatus('Server error');
+        // Handle other errors
+        setLoginStatus('An error occurred. Please try again later.');
       }
-    } catch (error) {
-      console.error('Axios error:', error);
-      setLoginStatus('Network error');
     }
   };
 
@@ -61,7 +61,11 @@ function MainPage() {
     } catch (error) {
       console.error('Axios error:', error);
       setLoginStatus('Network error');
-    } 
+    } finally{
+        setTimeout(() => {
+          setShowPopup(false);
+        }, 5000);
+    }
   };
 
 
@@ -80,6 +84,7 @@ function MainPage() {
       </header>
       <div id='input-container'>
         <div id='form-container'>
+        {loginStatus && <div className="error-message">{loginStatus}</div>}
           <div class='input-group'>
             <label for="username">Username</label>
             <input type="text" id="username" name="username" onChange={(e) => setUsername(e.target.value)}></input>

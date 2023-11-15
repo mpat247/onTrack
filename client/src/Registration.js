@@ -87,6 +87,8 @@ function RegistrationPage() {
                 <div id='title'>onTrack</div>
                 </div>
             </header>
+            <div className="center-container">  {/* Added this div to wrap headings and form */}
+
             <h1>Your Current Track...<br></br></h1>
             <h2>Register:</h2>
             
@@ -116,7 +118,7 @@ function RegistrationPage() {
                         <button type="button"><Link to="/onTrack">Login</Link></button>
                     </div>
                 </div>
-            
+            </div>
         </body>
 
     );
