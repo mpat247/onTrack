@@ -35,6 +35,12 @@ function RegistrationPage() {
                 return;
             }
 
+            const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+            if (!passwordRegex.test(password)) {
+                setRegistrationStatus('Password must contain at least one letter, one number, and one special character, and be at least 6 characters long.');
+            return;
+        }       
+
             //user has entered all fields
             //prepare data to send to the backend
             const userData = {
@@ -52,7 +58,7 @@ function RegistrationPage() {
                 setRegistrationStatus('Registration successful! Redirecting to login page...')
 
                 setTimeout(() => {
-                    window.location.href('/onTrack');
+                    window.location.href = '/onTrack';
                 }, 5000);
             } 
             //registration not valid
