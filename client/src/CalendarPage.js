@@ -108,9 +108,11 @@ function CalendarPage() {
     for (let j = 1; j <= nextDays; j++) {
       days += `<div class="day next">${j}</div>`;
     }
-
     daysContainer.innerHTML = days;
   }
+  
+
+
 
   useEffect(() => {
     const date = new Date();
@@ -144,7 +146,9 @@ function CalendarPage() {
       currentMonth = new Date().getMonth();
       currentYear = new Date().getFullYear();
       renderCalendar(currentMonth, currentYear);
+      
     });
+    
   }, []);
 
   function handleSignOut() {
