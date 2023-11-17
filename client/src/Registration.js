@@ -4,7 +4,7 @@ import onTrackLogo from './onTrackLogo.png';
 import HomePage from './HomePage';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
-const api = "http://localhost:5001"
+const api = "http://localhost:5004"
 
 
 function RegistrationPage() {
@@ -49,7 +49,7 @@ function RegistrationPage() {
                 email: email,
             };
             console.log(userData);
-            const response = await axios.post(`http://localhost:5001/users/register`, userData);
+            const response = await axios.post(`http://localhost:5004/users/register`, userData);
 
             console.log(response);
             //user successfully registers

@@ -2,7 +2,7 @@ import './ForgottenPass.css';
 import React, { useState } from 'react';
 import onTrackLogo from './onTrackLogo.png';
 import axios from 'axios';
-const api = "http://localhost:5001";
+const api = "http://localhost:5004";
 
 function ForgotPassPage() {
     const [statusString, setStatusString] = useState('');
@@ -14,7 +14,7 @@ function ForgotPassPage() {
                 setStatusString('Please enter a valid email.');
                 return;
             } else {
-                const response = await axios.get(`http://localhost:5001/users/reset?email=${encodeURIComponent(checkEmail)}`);
+                const response = await axios.get(`http://localhost:5004/users/reset?email=${encodeURIComponent(checkEmail)}`);
                 if (response.status === 200) {
                     setStatusString('An email has been sent to your inbox. Please check your email for the reset password link.');
                 } else if (response.status === 404) {

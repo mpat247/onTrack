@@ -4,7 +4,7 @@ import onTrackLogo from './onTrackLogo.png';
 import axios from 'axios'; // Import Axios
 import Homepage from './HomePage'; // Import the Homepage component
 import { Link } from 'react-router-dom';
-const api = "http://localhost:5001"
+const api = "http://localhost:5004"
 
 function MainPage() {
   const [username, setUsername] = useState('');
@@ -19,7 +19,7 @@ function MainPage() {
   const handleLogin = async () => {
     try {
       console.log(username, password);
-      const response = await axios.get(`http://localhost:5001/users/${username}/${password}`);
+      const response = await axios.get(`http://localhost:5004/users/${username}/${password}`);
       if (response.status === 200) {
         setNewName(response.data.payload.username); // Update newName using setNewName
         console.log(response.data.payload.userId)
@@ -41,7 +41,7 @@ function MainPage() {
   const handleCodeVerification = async () => {
     try {
       console.log(code);
-      const response = await axios.get(`http://localhost:5001/users/auth/${username}/${code}`);
+      const response = await axios.get(`http://localhost:5004/users/auth/${username}/${code}`);
       if (response.status === 200) {
         const userData = newName; // Accessing newName from the state
         console.log(userData);

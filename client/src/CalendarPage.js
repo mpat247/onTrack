@@ -3,7 +3,7 @@ import axios from 'axios';
 import './calendarPage.css';
 import 'font-awesome/css/font-awesome.min.css';
 
-const api = "http://localhost:5001";
+const api = "http://localhost:5004";
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -17,6 +17,15 @@ function CalendarPage() {
   const [tasks, setTasks] = useState([]);
   const [userName, setUserName] = useState('');
   const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'list'
+  const [showTaskPopup, setShowTaskPopup] = useState(false);
+  const [newTask, setNewTask] = useState({
+    task: '',
+    description: '',
+    createDate: '',
+    endDate: '',
+    priority: '',
+    progress: ''
+  });
 
   useEffect(() => {
     const userDataString = localStorage.getItem('storageName');
@@ -39,7 +48,7 @@ function CalendarPage() {
 
   async function fetchTasks(userID) {
     try {
-      const response = await axios.get(`http://localhost:5001/tasks/${userID}`);
+      const response = await axios.get(`http://localhost:5004/tasks/${userID}`);
       if (response.status === 200) {
         const updatedTasks = response.data.data.map(task => ({
           ...task,
@@ -56,6 +65,23 @@ function CalendarPage() {
     }
   }
   
+  // Function to handle form submission
+  const handleCreateTask = async () => {
+    try {
+      const userID = localStorage.getItem('storage2'); // Retrieve userID
+      const taskData = { ...newTask, userid: userID };
+      const response = await axios.post(`http://localhost:5004/tasks/create`, taskData);
+
+      if (response.status === 200) {
+        // Handle successful task creation
+        console.log("Task created successfully");
+        fetchTasks(userID); // Re-fetch tasks to update list
+        setShowTaskPopup(false); // Close the popup
+      }
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
+  };
 
   function renderCalendar(currentMonth, currentYear) {
     if (viewMode !== 'calendar') return;
@@ -171,7 +197,54 @@ function CalendarPage() {
     );
   }
   
-  
+  function renderTaskPopup() {
+    return showTaskPopup && (
+      <div className="task-popup">
+        <div className="task-form">
+          <h2>Create New Task</h2>
+          <input
+            type="text"
+            placeholder="Task Name"
+            value={newTask.task}
+            onChange={e => setNewTask({ ...newTask, task: e.target.value })}
+          />
+          <textarea
+            placeholder="Description"
+            value={newTask.description}
+            onChange={e => setNewTask({ ...newTask, description: e.target.value })}
+          />
+          <input
+            type="date"
+            placeholder="Create Date"
+            value={newTask.createDate}
+            onChange={e => setNewTask({ ...newTask, createDate: e.target.value })}
+          />
+          <input
+            type="date"
+            placeholder="End Date"
+            value={newTask.endDate}
+            onChange={e => setNewTask({ ...newTask, endDate: e.target.value })}
+          />
+          <input
+            type="number"
+            placeholder="Priority"
+            value={newTask.priority}
+            onChange={e => setNewTask({ ...newTask, priority: e.target.value })}
+          />
+          <select
+            value={newTask.progress}
+            onChange={e => setNewTask({ ...newTask, progress: e.target.value })}
+          >
+            <option value="To-do">To-do</option>
+            <option value="Doing">Doing</option>
+            <option value="Done">Done</option>
+          </select>
+          <button onClick={handleCreateTask}>Create Task</button>
+          <button onClick={() => setShowTaskPopup(false)}>Cancel</button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <body>
@@ -184,9 +257,12 @@ function CalendarPage() {
         </ul>
       </header>
       <div className="buttons">
+      <button onClick={() => setShowTaskPopup(true)}>Create New Task</button>
+
         <button onClick={handleSignOut}>
           Logout
         </button>
+
       </div>
       <div className='input-group'>
         <h1>Welcome {userName}</h1>
@@ -233,6 +309,7 @@ function CalendarPage() {
           </div>
         )}
       </div>
+      {renderTaskPopup()}
     </body>
   );
 }
