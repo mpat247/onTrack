@@ -37,6 +37,32 @@ function CalendarPage() {
     renderCalendar(date.getMonth(), date.getFullYear());
   }, [tasks]);
 
+  async function handleCreateTask(newTask) {
+    try {
+      const response = await axios.post(`${api}/tasks`, {
+        task: newTask.taskname,
+        description: newTask.description,
+        userId: 'your_user_id', // Replace 'your_user_id' with the actual user ID
+        progress: '0', // Assuming 'progress' starts at 0 (or another appropriate initial value)
+        createDate: newTask.startDate, // or any appropriate value for task creation date
+        endDate: newTask.endDate,
+        priority: 'High' // or any appropriate value for priority
+      });
+
+      if (response.status === 200) {
+        // Handle successful task creation
+        // For example, fetch the updated task list after creating the task
+        fetchTasks('your_user_id');
+      } else {
+        console.error('Task creation failed');
+        // Handle task creation failure here
+      }
+    } catch (error) {
+      console.error('Error creating task:', error);
+      // Handle error cases here
+    }
+  }
+
   async function fetchTasks(userID) {
     try {
       const response = await axios.get(`http://localhost:5001/tasks/${userID}`);
@@ -175,8 +201,6 @@ function CalendarPage() {
     );
   }
   
-  
-
   return (
     <body>
 
@@ -187,6 +211,37 @@ function CalendarPage() {
           <li><button className="view-mode-button" onClick={() => setViewMode('list')}>List View</button></li>
         </ul>
       </header>
+      <div className="create-task-form">
+        <h2>Create New Task</h2>
+        <input
+          type="text"
+          placeholder="Task Name"
+          name="taskname"
+          value={newTask.taskname}
+          onChange={handleInputChange}
+        />
+        <textarea
+          placeholder="Description"
+          name="description"
+          value={newTask.description}
+          onChange={handleInputChange}
+        ></textarea>
+        <input
+          type="date"
+          placeholder="Start Date"
+          name="startDate"
+          value={newTask.startDate}
+          onChange={handleInputChange}
+        />
+        <input
+          type="date"
+          placeholder="End Date"
+          name="endDate"
+          value={newTask.endDate}
+          onChange={handleInputChange}
+        />
+        <button onClick={handleCreateTask}>Create Task</button>
+      </div>
       <div className="buttons">
         <button onClick={handleSignOut}>
           Logout
