@@ -8,20 +8,7 @@ const nodemailer = require("nodemailer");
 const crypto = require('crypto');
 const { type } = require("os");
 
-/**
- * @swagger
- * /user:
- *   get:
- *     summary: Get a list of users
- *     description: Retrieve a list of all users.
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             example:
- *               users: []
- */ 
+
 
 // Get Account
 // Get User by Name and Password
@@ -65,33 +52,8 @@ router.get("/:name/:password", async (req, res) => {
             };
             console.log(userData);
 
-            // Create a nodemailer transporter
-            const transporter = nodemailer.createTransport({
-                service: "gmail",
-                auth: {
-                    user: "imagegenerator6@gmail.com", // your email address
-                    pass: "hlxc lvba sacz qgas" // your email password
-                }
-            });
-        
-            // Email content
-            const mailOptions = {
-                from: "imagegenerator6@gmail.com",
-                to: userData.email,
-                subject: "User Authentication for onTrack Application",
-                text: `Your code is: ${userData.code}.`
-            };
+            res.status(200).json({msg:"User Found", payload: userData });
 
-            // Send the email
-            transporter.sendMail(mailOptions, function(error, info) {
-                if (error) {
-                    console.error("Email sending failed:", error);
-                    res.status(500).json({ error: "Email sending failed" });
-                } else {
-                    console.log("Email sent:", info.response);
-                    res.status(200).json({ msg: "User Found and Email Sent", payload: userData });
-                }
-            });
         } else {
             // User not found
             res.status(404).json({ error: "User not found" });
@@ -330,6 +292,95 @@ router.post("/register", async (req, res) => {
         res.status(500).send({ error: "Database Connection Error", details: error.message });
     }
 });
+
+router.put("/auth", async (req, res) => {
+    const { userID } = req.body;
+
+    if (!userID) {
+        return res.status(400).send({ msg: "Invalid UserID" });
+    }
+    if (typeof userID !== "number") {
+        return res.status(400).send({ msg: "UserID must be a number" });
+    }
+
+    function generate32BitRandomCode() {
+        return crypto.randomBytes(4).toString('hex').toUpperCase();
+    }
+
+    const code = generate32BitRandomCode();
+    console.log(code);
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+        console.log(userID);
+
+        try {
+            const userQueryResult = await connection.execute(
+                "SELECT USER_EMAIL FROM ACCOUNT WHERE USER_ID = :userID",
+                { userID }
+            );
+
+            if (userQueryResult.rows.length === 0) {
+                return res.status(404).send({ error: "User not found" });
+            }
+
+            const userEmail = userQueryResult.rows[0][0];
+            console.log(`User Email: ${userEmail}`);
+
+            const updateResult = await connection.execute(
+                "UPDATE ACCOUNT SET CODE = :code WHERE USER_ID = :userID",
+                { code, userID },
+                { autoCommit: true }
+            );
+
+            console.log(updateResult);
+
+            // Create a nodemailer transporter
+            const transporter = nodemailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: "imagegenerator6@gmail.com", // your email address
+                    pass: "hlxc lvba sacz qgas" // your email password
+                }
+            });
+
+            // Email content
+            const mailOptions = {
+                from: "imagegenerator6@gmail.com",
+                to: userEmail,
+                subject: "User Authentication for onTrack Application",
+                text: `Your code is: ${code}.`
+            };
+
+            // Send the email
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.error("Email sending failed:", error);
+                    return res.status(500).send({ error: "Email sending failed" });
+                } else {
+                    console.log("Email sent:", info.response);
+                    return res.status(200).send({ msg: "User Found and Email Sent" });
+                }
+            });
+
+        } catch (error) {
+            console.error("Database Query Error:", error);
+            return res.status(500).send({ error: "Database Query Error", details: error.message });
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+        }
+    } catch (error) {
+        return res.status(500).send({ error: "Database Connection Error", details: error.message });
+    }
+});
+
+
 
 // update password - forgot password
 router.put("/reset", async (req, res) => {

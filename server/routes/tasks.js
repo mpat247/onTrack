@@ -5,21 +5,6 @@ const { v4: uuidv4 } = require('uuid');
 const dbConfig = require("./dbconfig");
 
 
-/**
- * @swagger
- * /tasks:
- *   get:
- *     summary: Get a list of tasks
- *     description: Retrieve a list of all tasks.
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             example:
- *               tasks: []
- */
-
 // Fetch all tasks
 router.get("/", async (req, res) => {
     const { userId } = req.params; // Assuming you have 'userId' in your request
@@ -55,28 +40,6 @@ router.get("/", async (req, res) => {
         res.status(500).send({ error: "Database Connection Error", details: error.message });
     }
 });
-
-/**
- * @swagger
- * /tasks/{id}:
- *   get:
- *     summary: Get a task by ID
- *     description: Retrieve a task by its unique ID.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The ID of the task to retrieve.
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             example:
- *               task: { id: 1, description: "Sample Task" }
- */
 
 // Fetch task based on ID
 router.get("/:userId", async (req, res) => {
@@ -128,61 +91,6 @@ router.get("/:userId", async (req, res) => {
         res.status(500).send({ error: "Database Connection Error", details: error.message });
     }
 });
-
-
-/**
- * @swagger
- * /tasks:
- *   post:
- *     summary: Create a new task
- *     description: Create a new task with the provided data.
- *     parameters:
- *       - in: body
- *         name: requestBody
- *         description: Request body
- *         required: true
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 task:
- *                   type: string
- *                   description: The name of the task.
- *                 description:
- *                   type: string
- *                   description: The description of the task.
- *                 userId:
- *                   type: integer
- *                   description: The user ID associated with the task (in UUID format).
- *                 progress:
- *                   type: string
- *                   description: The progress of the task (string).
- *                 createDate:
- *                   type: string
- *                   description: The date when the task was created (string).
- *                 endDate:
- *                   type: string
- *                   description: The date when the task ends (string).
- *                 priority:
- *                   type: string
- *                   description: The priority of the task (string)
- *     responses:
- *       200:
- *         description: Successful response
- *         content:
- *           application/json:
- *             example:
- *               task: {
- *                 task: "New Task",
- *                 description: "Task description",
- *                 userId: "4d7e9d4b-4cc0-4cc1-8b04-93b6c2f8de2b",
- *                 progress: "50",
- *                 createDate: "2023-10-29",
- *                 endDate: "2023-11-29",
- *                 priority: "High"
- *               }
- */
 
 // Create a new task
 router.post("/", async (req, res) => {
@@ -280,46 +188,6 @@ router.post("/", async (req, res) => {
     }
 });
 
-/**
- * @swagger
- * /tasks/{id}:
- *   put:
- *     summary: Update a task by ID
- *     description: Update an existing task by its unique ID.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The ID of the task to update.
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             type: object
- *             properties:
- *               name:
- *                 type: string
- *                 description: The updated name of the task.
- *               startDate:
- *                 type: string
- *                 format: date
- *                 description: The updated start date of the task.
- *               endDate:
- *                 type: string
- *                 format: date
- *                 description: The updated end date of the task.
- *     responses:
- *       200:
- *         description: Task updated successfully
- *         content:
- *           application/json:
- *             example:
- *               task: { id: 1, name: "Updated Task", startDate: "2023-11-15", endDate: "2023-11-30" }
- */
-
 // Task Specifics
 router.put("/", async (req, res) => {
     // Get parameters to edit
@@ -386,24 +254,6 @@ router.put("/", async (req, res) => {
         res.status(500).send({ error: "Database Connection Error", details: error.message });
     }
 });
-
-/**
- * @swagger
- * /tasks/{id}:
- *   delete:
- *     summary: Delete a task by ID
- *     description: Delete a task by its unique ID.
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         schema:
- *           type: integer
- *         description: The ID of the task to delete.
- *     responses:
- *       204:
- *         description: Task deleted successfully
- */
 
 // Delete Task
 router.delete("/:id", async (req, res) => {
