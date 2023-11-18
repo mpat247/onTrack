@@ -306,4 +306,65 @@ ul li {
   vertical-align: middle;
   margin-right: 10px; /* Space between checkbox and label */
 }
+.task-popup {
+  position: fixed;
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%); /* Adjust position to truly center */
+  width: auto; /* Adjust width as needed, could be a fixed value or percentage */
+  max-width: 90%; /* Maximum width, adjust as necessary */
+  height: auto; /* Auto height based on content */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px; /* Optional padding */
+  box-sizing: border-box; /* Include padding in width calculation */
+}
 
+
+.task-card {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  /* Remove box-shadow line */
+  width: 450px;
+  height: auto; 
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.task-inputs {
+  display: flex; /* Add flex display */
+  flex-direction: column; /* Align children vertically */
+}
+
+.task-inputs input, .task-inputs select, .task-inputs textarea {
+  display: block;
+  width: 100%; /* Full width */
+  padding: 10px;
+  margin-bottom: 10px; /* Space between inputs */
+  border: 2px solid #333;
+  border-radius: 4px;
+}
+
+.task-actions {
+  display: flex; /* Add flex display */
+  justify-content: space-between; /* Space out buttons */
+  width: 100%; /* Full width */
+}
+
+.task-actions button {
+  background-color: #79addc;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  flex-basis: 48%; /* Each button takes up slightly less than half the space */
+}
+
+.task-actions button:hover {
+  background-color: #0056b3;
+}

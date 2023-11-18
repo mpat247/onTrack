@@ -1,71 +1,79 @@
 import './MainPage.css';
 import React, { useState } from 'react';
 import onTrackLogo from './onTrackLogo.png';
-import axios from 'axios'; // Import Axios
-import Homepage from './HomePage'; // Import the Homepage component
+import axios from 'axios';
 import { Link } from 'react-router-dom';
 const api = "http://localhost:5001"
 
 function MainPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [userId, setId] = useState('');
+  const [userId, setUserId] = useState('');
   const [loginStatus, setLoginStatus] = useState(null);
-  const [code, setCode] = useState(''); // State for the code input
-  const [showPopup, setShowPopup] = useState(false); // State to control the popup visibility
-  const [newName, setNewName] = useState(''); // State for newName
-
+  const [code, setCode] = useState('');
+  const [showPopup, setShowPopup] = useState(false);
+  const [showLoginSuccess, setShowLoginSuccess] = useState(false);
+  const [newName, setNewName] = useState('');
 
   const handleLogin = async () => {
     try {
-      console.log(username, password);
       const response = await axios.get(`http://localhost:5001/users/${username}/${password}`);
       if (response.status === 200) {
-        setNewName(response.data.payload.username); // Update newName using setNewName
-        console.log(response.data.payload.userId)
-        setId(response.data.payload.userId); // Update newName using setNewName
-        setShowPopup(true); // Show the popup for additional verification
-      }
-    }catch (error) {
-      console.error('Axios error:', error);
-      if (error.response && error.response.status === 404) {
-        // Handle 404 specifically
-        setLoginStatus('User not found');
+        setNewName(response.data.payload.username);
+        setUserId(response.data.payload.userId);
+        setShowLoginSuccess(true);
       } else {
-        // Handle other errors
-        setLoginStatus('An error occurred. Please try again later.');
+        setLoginStatus('Login failed. Please try again.');
       }
+    } catch (error) {
+      console.error('Login error:', error);
+      setLoginStatus('An error occurred during login.');
     }
   };
 
   const handleCodeVerification = async () => {
     try {
-      console.log(code);
       const response = await axios.get(`http://localhost:5001/users/auth/${username}/${code}`);
       if (response.status === 200) {
-        const userData = newName; // Accessing newName from the state
-        console.log(userData);
-        console.log(userId);
-        //window.location.href = `http://localhost/homepage`;
-        localStorage.setItem('storageName', userData);
+        localStorage.setItem('storageName', newName);
         localStorage.setItem('storage2', userId);
         window.location = `http://localhost:3000/calendarpage`;
-
-      } else if (response.status === 404) {
-        console.log('Code not valid');
-        setLoginStatus('Code not valid');
       } else {
-        console.log('Server error');
-        setLoginStatus('Server error');
+        setLoginStatus('Code verification failed.');
       }
     } catch (error) {
-      console.error('Axios error:', error);
-      setLoginStatus('Network error');
-    } finally{
-        setTimeout(() => {
-          setShowPopup(false);
-        }, 5000);
+      console.error('Code verification error:', error);
+      setLoginStatus('An error occurred during code verification.');
     }
+  };
+
+  const handleAuthenticate = async () => {
+    try {
+      // Create an object with the userId property
+      const requestBody = { userID: userId };
+  
+      // Send the request with the correct URL and requestBody
+      const response = await axios.put(`http://localhost:5001/users/auth`, requestBody, {
+        headers: {
+          'Content-Type': 'application/json' // Ensure to set the content type to application/json
+        }
+      });
+  
+      if (response.status === 200) {
+        setShowLoginSuccess(false);
+        setShowPopup(true);
+      } else {
+        console.log("Failed to trigger code generation");
+      }
+    } catch (error) {
+      console.error('Error triggering code generation:', error);
+    }
+  };
+  
+  
+  const closePopup = () => {
+    setShowPopup(false);
+    setShowLoginSuccess(false);
   };
 
 
@@ -105,17 +113,23 @@ function MainPage() {
         </div>
       </div>
 
+      {showLoginSuccess && (
+        <div id='popup-container'>
+          <div id='popup-card'>
+            <h2>Login Successful</h2>
+            <button type="button" onClick={handleAuthenticate}>Authenticate</button>
+            <button type="button" onClick={closePopup} style={{ backgroundColor: 'red', color: 'white' }}>Close</button>
+          </div>
+        </div>
+      )}
+
       {showPopup && (
         <div id='popup-container'>
           <div id='popup-card'>
             <label htmlFor="code">Code:</label>
-            <input
-              type="text"
-              id="code"
-              name="code"
-              onChange={(e) => setCode(e.target.value)}
-            />
+            <input type="text" id="code" name="code" onChange={(e) => setCode(e.target.value)} />
             <button type="button" onClick={handleCodeVerification}>Verify Code</button>
+            <button type="button" onClick={closePopup} style={{ backgroundColor: 'red', color: 'white' }}>Close</button>
           </div>
         </div>
       )}

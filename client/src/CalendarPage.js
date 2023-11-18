@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import onTrackLogo from './onTrackLogo.png';
+
 import './calendarPage.css';
 import 'font-awesome/css/font-awesome.min.css';
 
@@ -17,10 +19,20 @@ function CalendarPage() {
   const [tasks, setTasks] = useState([]);
   const [userName, setUserName] = useState('');
   const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'list'
+  const [showTaskPopup, setShowTaskPopup] = useState(false);
+  const userDataString = localStorage.getItem('storageName');
+  const userID = localStorage.getItem('storage2'); // Hardcoded for testing
+  const [newTask, setNewTask] = useState({ 
+    task: '',
+    description: '',
+    userId: '', 
+    progress: '', 
+    createDate: '', 
+    endDate: '',
+    priority: '' 
+  });
 
   useEffect(() => {
-    const userDataString = localStorage.getItem('storageName');
-    const userID = localStorage.getItem('storage2'); // Hardcoded for testing
 
     if (userDataString) {
       setUserName(userDataString); // Assuming this is just a string, not an object
@@ -36,32 +48,6 @@ function CalendarPage() {
     const date = new Date();
     renderCalendar(date.getMonth(), date.getFullYear());
   }, [tasks]);
-
-  async function handleCreateTask(newTask) {
-    try {
-      const response = await axios.post(`${api}/tasks`, {
-        task: newTask.taskname,
-        description: newTask.description,
-        userId: 'your_user_id', // Replace 'your_user_id' with the actual user ID
-        progress: '0', // Assuming 'progress' starts at 0 (or another appropriate initial value)
-        createDate: newTask.startDate, // or any appropriate value for task creation date
-        endDate: newTask.endDate,
-        priority: 'High' // or any appropriate value for priority
-      });
-
-      if (response.status === 200) {
-        // Handle successful task creation
-        // For example, fetch the updated task list after creating the task
-        fetchTasks('your_user_id');
-      } else {
-        console.error('Task creation failed');
-        // Handle task creation failure here
-      }
-    } catch (error) {
-      console.error('Error creating task:', error);
-      // Handle error cases here
-    }
-  }
 
   async function fetchTasks(userID) {
     try {
@@ -81,7 +67,6 @@ function CalendarPage() {
       console.error('Error fetching tasks:', error);
     }
   }
-  
 
   function renderCalendar(currentMonth, currentYear) {
     if (viewMode !== 'calendar') return;
@@ -136,9 +121,6 @@ function CalendarPage() {
     }
     daysContainer.innerHTML = days;
   }
-  
-
-
 
   useEffect(() => {
     const date = new Date();
@@ -200,52 +182,123 @@ function CalendarPage() {
       </div>
     );
   }
+
+  function renderTaskPopup() {
+    if (!showTaskPopup) return null;
+  
+    const handleCreateTask = async (e) => {
+      e.preventDefault();
+      const userID = localStorage.getItem('storage2'); // Retrieve userID
+    
+      // Construct taskData with only the required properties
+      const taskData = { 
+        task: newTask.task,
+        description: newTask.description,
+        userId: userID, // Set userId from the retrieved userID
+        progress: newTask.progress,
+        createDate: newTask.createDate,
+        endDate: newTask.endDate,
+        priority: newTask.priority 
+      };
+    
+      console.log(taskData)
+
+      try {
+        const response = await axios.post(`http://localhost:5001/tasks`, taskData);
+        if (response.status === 200) {
+          console.log("Task created successfully");
+          fetchTasks(userID); // Re-fetch tasks to update list
+          setShowTaskPopup(false); // Close the popup
+        }
+      } catch (error) {
+        console.error('Error creating task:', error);
+      }
+    };
+  
+    return (
+      <div className="task-popup">
+        <div className="task-card">
+          <h2>Create New Task</h2>
+          <div className="task-inputs">
+            <input
+              type="text"
+              placeholder="Task Name"
+              value={newTask.task}
+              onChange={e => setNewTask({ ...newTask, task: e.target.value })}
+            />
+            <textarea
+              placeholder="Description"
+              value={newTask.description}
+              onChange={e => setNewTask({ ...newTask, description: e.target.value })}
+            />
+            <input
+              type="date"
+              placeholder="Create Date"
+              value={newTask.createDate}
+              onChange={e => setNewTask({ ...newTask, createDate: e.target.value })}
+            />
+            <input
+              type="date"
+              placeholder="End Date"
+              value={newTask.endDate}
+              onChange={e => setNewTask({ ...newTask, endDate: e.target.value })}
+            />
+            <select
+              value={newTask.progress}
+              onChange={e => setNewTask({ ...newTask, progress: e.target.value })}
+            >
+              <option value="">Select Your Progress</option> {/* Added default option */}
+              <option value="0">To-do</option>
+              <option value="1">In Progress</option>
+              <option value="2">Done</option>
+            </select>
+
+            <select
+  value={newTask.priority}
+  onChange={e => setNewTask({ ...newTask, priority: e.target.value })}
+>
+  <option value="">Select Priority</option> {/* Added default option */}
+  <option value="0">Low</option>
+  <option value="1">Medium</option>
+  <option value="2">High</option>
+</select>
+
+          </div>
+          <div className="task-actions">
+            <button onClick={handleCreateTask}>Create Task</button>
+            <button onClick={() => setShowTaskPopup(false)}>Cancel</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   
   return (
     <body>
 
       <title>Calendar</title>
+      
       <header>
-        <ul>
-          <li><button className="view-mode-button" onClick={() => setViewMode('calendar')}>Calendar View</button></li>
-          <li><button className="view-mode-button" onClick={() => setViewMode('list')}>List View</button></li>
-        </ul>
-      </header>
-      <div className="create-task-form">
-        <h2>Create New Task</h2>
-        <input
-          type="text"
-          placeholder="Task Name"
-          name="taskname"
-          value={newTask.taskname}
-          onChange={handleInputChange}
-        />
-        <textarea
-          placeholder="Description"
-          name="description"
-          value={newTask.description}
-          onChange={handleInputChange}
-        ></textarea>
-        <input
-          type="date"
-          placeholder="Start Date"
-          name="startDate"
-          value={newTask.startDate}
-          onChange={handleInputChange}
-        />
-        <input
-          type="date"
-          placeholder="End Date"
-          name="endDate"
-          value={newTask.endDate}
-          onChange={handleInputChange}
-        />
-        <button onClick={handleCreateTask}>Create Task</button>
-      </div>
+                <div className="wave-header">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+                        <path fill="#79addc" fillOpacity="1" d="M0,320L60,304C120,288,240,256,360,229.3C480,203,600,181,720,176C840,171,960,181,1080,181.3C1200,181,1320,171,1380,165.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
+                    </svg>
+                </div>
+                <div id="logo-container"> 
+                  <img src={onTrackLogo} id="logo" alt="Logo" />
+                  <button className="view-mode-button" onClick={() => setViewMode('calendar')}>Calendar View</button>
+                  <button className="view-mode-button" onClick={() => setViewMode('list')}>List View</button>
+
+                </div>
+            </header>
       <div className="buttons">
+      <button onClick={() => setShowTaskPopup(true)}>Create New Task</button>
+
         <button onClick={handleSignOut}>
           Logout
         </button>
+
       </div>
       <div className='input-group'>
         <h1>Welcome {userName}</h1>
@@ -292,8 +345,10 @@ function CalendarPage() {
           </div>
         )}
       </div>
+      {renderTaskPopup()}
     </body>
   );
 }
 
 export default CalendarPage;
+
