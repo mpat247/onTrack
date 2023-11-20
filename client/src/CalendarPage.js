@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import onTrackLogo from './onTrackLogo.png';
-
 import './calendarPage.css';
 import 'font-awesome/css/font-awesome.min.css';
-
-const api = "http://localhost:5001";
+import { Pie } from 'react-chartjs-2';
+import 'chart.js/auto';
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -20,8 +19,10 @@ function CalendarPage() {
   const [userName, setUserName] = useState('');
   const [viewMode, setViewMode] = useState('calendar'); // 'calendar' or 'list'
   const [showTaskPopup, setShowTaskPopup] = useState(false);
+  const [showStatisticsPopup, setShowStatisticsPopup] = useState(false);
   const userDataString = localStorage.getItem('storageName');
   const userID = localStorage.getItem('storage2'); // Hardcoded for testing
+  
   const [newTask, setNewTask] = useState({ 
     task: '',
     description: '',
@@ -32,8 +33,10 @@ function CalendarPage() {
     priority: '' 
   });
 
-  useEffect(() => {
+  const [showPopUpCard, setShowPopUpCard] = useState(false);
+  const [selectedTasksForDay, setSelectedTasksForDay] = useState([]);
 
+  useEffect(() => {
     if (userDataString) {
       setUserName(userDataString); // Assuming this is just a string, not an object
     }
@@ -42,7 +45,7 @@ function CalendarPage() {
       fetchTasks(userID);
     }
   }, []);
- 
+
   useEffect(() => {
     // Initial render of the calendar
     const date = new Date();
@@ -68,60 +71,85 @@ function CalendarPage() {
     }
   }
 
+  const viewAllTasks = (dateToShowTasks) => {
+    const tasksToShow = tasks.filter(task => task.displayDate === dateToShowTasks);
+    setSelectedTasksForDay(tasksToShow);
+    setShowPopUpCard(true);
+  };
+
   function renderCalendar(currentMonth, currentYear) {
     if (viewMode !== 'calendar') return;
-
+  
     const daysContainer = document.querySelector(".days");
     const monthLabel = document.querySelector(".month");
-
+  
     monthLabel.innerHTML = `${months[currentMonth]} ${currentYear}`;
-
+  
     let days = "";
     const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
     const lastDayIndex = new Date(currentYear, currentMonth + 1, 0).getDay();
     const prevLastDay = new Date(currentYear, currentMonth, 0).getDate();
     const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
     const nextDays = 7 - lastDayIndex - 1;
-
+  
     for (let x = firstDayIndex; x > 0; x--) {
       days += `<div class="day prev">${prevLastDay - x + 1}</div>`;
     }
-
+  
     for (let i = 1; i <= lastDay; i++) {
       const fullDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
       const tasksForDay = tasks.filter(task => task.displayDate === fullDate);
-
-      let taskHTML = tasksForDay.map(task => {
-        // Assuming 'progress' field in task is a numeric value corresponding to the indices of the 'progress' array
+  
+      let taskHTML = "";
+  
+      if (tasksForDay.length === 1) {
+        const task = tasksForDay[0];
         const progressIndex = task.progress;
-        const progressText = progress[progressIndex]; // Access the corresponding progress text
-    
-        return `
-            <div class="task-card">
-                <div class="task-details">
-                    <span class="task-name"><strong>${task.taskname}</strong></span>
-                    <span class="task-progress">
-                        <span class="progress-pill ${progressColors[progressIndex]}"></span>
-                        <em>${progressText}</em> <!-- Display the progress as text -->
-                    </span>
-                </div>
-            </div>`;
-    }).join('');
-    
-    
+        const progressText = progress[progressIndex];
+  
+        taskHTML = `
+          <div class="task-card">
+            <div class="task-details">
+              <span class="task-name"><strong>${task.taskname}</strong></span>
+              <span class="task-progress">
+                <span class="progress-pill ${progressColors[progressIndex]}"></span>
+                <em>${progressText}</em>
+              </span>
+            </div>
+          </div>`;
+      } else if (tasksForDay.length > 1) {
+        taskHTML = `
+          <div class="task-card">
+            <div class="task-details">
+              <button class="show-tasks-button" data-date="${fullDate}">View All</button>
+            </div>
+          </div>`;
+      }
+  
       if (i === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()) {
         days += `<div class="day today">${i}${taskHTML}</div>`;
       } else {
         days += `<div class="day">${i}${taskHTML}</div>`;
       }
     }
-
+  
     for (let j = 1; j <= nextDays; j++) {
       days += `<div class="day next">${j}</div>`;
     }
     daysContainer.innerHTML = days;
+  
+    // Add event listeners to the "View All" buttons
+    const viewAllButtons = document.querySelectorAll(".show-tasks-button");
+    viewAllButtons.forEach(button => {
+      button.addEventListener("click", () => {
+        const dateToShowTasks = button.getAttribute("data-date");
+        const tasksToShow = tasks.filter(task => task.displayDate === dateToShowTasks);
+        setSelectedTasksForDay(tasksToShow);
+        setShowPopUpCard(true);
+      });
+    });
   }
-
+  
   useEffect(() => {
     const date = new Date();
     renderCalendar(date.getMonth(), date.getFullYear());
@@ -154,7 +182,6 @@ function CalendarPage() {
       currentMonth = new Date().getMonth();
       currentYear = new Date().getFullYear();
       renderCalendar(currentMonth, currentYear);
-      
     });
     
   }, []);
@@ -163,6 +190,39 @@ function CalendarPage() {
     // Your sign-out logic here
     localStorage.clear(); // Example: Clearing localStorage
     window.location.href = 'http://localhost:3000/onTrack'; // Redirect after sign out
+  }
+
+  const prepareChartData = (tasks) => {
+    const progressCounts = { todo: 0, doing: 0, done: 0 };
+    const priorityCounts = { low: 0, medium: 0, high: 0 };
+
+    tasks.forEach(task => {
+      if (task.progress === 0) progressCounts.todo += 1;
+      if (task.progress === 1) progressCounts.doing += 1;
+      if (task.progress === 2) progressCounts.done += 1;
+
+      if (task.priority === 0) priorityCounts.low += 1;
+      if (task.priority === 1) priorityCounts.medium += 1;
+      if (task.priority === 2) priorityCounts.high += 1;
+    });
+
+    const progressChartData = {
+      labels: ['To-do', 'Doing', 'Done'],
+      datasets: [{
+        data: [progressCounts.todo, progressCounts.doing, progressCounts.done],
+        backgroundColor: ['#ff4d4d', '#ffa500', '#4caf50'],
+      }]
+    };
+
+    const priorityChartData = {
+      labels: ['Low', 'Medium', 'High'],
+      datasets: [{
+        data: [priorityCounts.low, priorityCounts.medium, priorityCounts.high],
+        backgroundColor: ['#add8e6', '#dda0dd', '#ffa07a'],
+      }]
+    };
+
+    return { progressChartData, priorityChartData };
   }
 
   function renderListView() {
@@ -254,15 +314,14 @@ function CalendarPage() {
             </select>
 
             <select
-  value={newTask.priority}
-  onChange={e => setNewTask({ ...newTask, priority: e.target.value })}
->
-  <option value="">Select Priority</option> {/* Added default option */}
-  <option value="0">Low</option>
-  <option value="1">Medium</option>
-  <option value="2">High</option>
-</select>
-
+              value={newTask.priority}
+              onChange={e => setNewTask({ ...newTask, priority: e.target.value })}
+            >
+              <option value="">Select Priority</option> {/* Added default option */}
+              <option value="0">Low</option>
+              <option value="1">Medium</option>
+              <option value="2">High</option>
+            </select>
           </div>
           <div className="task-actions">
             <button onClick={handleCreateTask}>Create Task</button>
@@ -273,32 +332,69 @@ function CalendarPage() {
     );
   }
   
-  
+  const PopUpCard = ({ onClose }) => {
+    return (
+      <div className="popup-card">
+        <div className="popup-card-content">
+          <button className="popup-close-button" onClick={() => onClose(false)}>
+            Close
+          </button>
+          <h2>Tasks</h2>
+          <div className="task-list">
+            {selectedTasksForDay.map(task => (
+              <div className="task-item" key={task.taskId}>
+                {/* Render task details here */}
+                <h3>{task.taskname}</h3>
+                <p>Description: {task.description}</p>
+                <p>End Date: {task.enddate.split('T')[0]}</p>
+                <p>Status: {progress[task.progress]}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <body>
-
       <title>Calendar</title>
-      
       <header>
-                <div className="wave-header">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
-                        <path fill="#79addc" fillOpacity="1" d="M0,320L60,304C120,288,240,256,360,229.3C480,203,600,181,720,176C840,171,960,181,1080,181.3C1200,181,1320,171,1380,165.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
-                    </svg>
-                </div>
-                <div id="logo-container"> 
-                  <img src={onTrackLogo} id="logo" alt="Logo" />
-                  <button className="view-mode-button" onClick={() => setViewMode('calendar')}>Calendar View</button>
-                  <button className="view-mode-button" onClick={() => setViewMode('list')}>List View</button>
+        <div className="wave-header">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320">
+            <path fill="#79addc" fillOpacity="1" d="M0,320L60,304C120,288,240,256,360,229.3C480,203,600,181,720,176C840,171,960,181,1080,181.3C1200,181,1320,171,1380,165.3L1440,160L1440,0L1380,0C1320,0,1200,0,1080,0C960,0,840,0,720,0C600,0,480,0,360,0C240,0,120,0,60,0L0,0Z"></path>
+          </svg>
+        </div>
+        <div id="logo-container">
+          <a href="http://localhost:3000/HomePage">
+            <img src={onTrackLogo} id="logo" alt="Logo" />
+          </a>
+          <button className="view-mode-button" onClick={() => setViewMode('calendar')}>Calendar View</button>
+          <button className="view-mode-button" onClick={() => setViewMode('list')}>List View</button>
+        </div>
+      </header>
 
-                </div>
-            </header>
+      {showStatisticsPopup && (
+        <div className="statistics-popup">
+          <h2>Task Statistics</h2>
+          <div style={{ display: 'flex', justifyContent: 'space-around' }}>
+            <div style={{ width: '300px', height: '300px' }}>
+              <h3>Task Progress</h3>
+              <Pie data={prepareChartData(tasks).progressChartData} />
+            </div>
+            <div style={{ width: '300px', height: '300px' }}>
+              <h3>Task Priority</h3>
+              <Pie data={prepareChartData(tasks).priorityChartData} />
+            </div>
+          </div>
+          <button onClick={() => setShowStatisticsPopup(false)}>Close</button>
+        </div>
+      )}
+
       <div className="buttons">
-      <button onClick={() => setShowTaskPopup(true)}>Create New Task</button>
-
-        <button onClick={handleSignOut}>
-          Logout
-        </button>
-
+        <button onClick={() => setShowTaskPopup(true)}>Create New Task</button>
+        <button onClick={() => setShowStatisticsPopup(true)}>View Statistics</button>
+        <button onClick={handleSignOut}>Logout</button>
       </div>
       <div className='input-group'>
         <h1>Welcome {userName}</h1>
@@ -329,7 +425,7 @@ function CalendarPage() {
               <div className="day">Fri</div>
               <div className="day">Sat</div>
             </div>
-            <div class="days">
+            <div className="days">
             </div>
           </div>
         ) : (
@@ -345,10 +441,12 @@ function CalendarPage() {
           </div>
         )}
       </div>
+
       {renderTaskPopup()}
+
+      {showPopUpCard && <PopUpCard onClose={() => setShowPopUpCard(false)} />}
     </body>
   );
 }
 
 export default CalendarPage;
-

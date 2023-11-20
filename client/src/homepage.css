@@ -1,0 +1,252 @@
+.homepage body {
+    color: #FFFFFF;
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+}
+
+.homepage header {
+    background-size: cover;
+    background-position: center bottom;
+    display: flex;
+    height: 12vw;
+}
+
+.homepage .wave-header {
+    width: 100%;
+    position: relative;
+    height: 15vw;
+}
+
+.homepage svg {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: auto;
+}
+
+.homepage #logo-container {
+    display: flex;
+    align-items: center;
+    margin-left: 0.5vw;
+    margin-top: 1vw;
+    height: 5vw;
+    position: absolute;
+    z-index: 1;
+}
+
+.homepage #logo {
+    width: 10vh;
+}
+
+.homepage #title {
+    font-family: 'Helvetica', sans-serif;
+    font-size: 8vh;
+    margin-left: 1vw;
+    font-weight: 700;
+    color: white;
+}
+
+.homepage .input-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 5vh;
+}
+
+.homepage .form-container {
+    background-color: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 50%;
+    margin: 0 auto;
+}
+
+.homepage .input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.homepage .tasks-list {
+    margin-top: 20px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.homepage .task-item {
+    background-color: #e9e9f1;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    width: 100%;
+}
+
+.homepage .add-task-form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.homepage .add-task-form input, .homepage .add-task-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 2px solid #333;
+    border-radius: 4px;
+}
+
+.homepage .add-task-form button, .homepage .calendar-button {
+    background-color: #79addc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.homepage .add-task-form button:hover, .homepage .calendar-button:hover {
+    background-color: #0056b3;
+}
+
+.bottom-whitespace {
+    height: 50px; /* Adjust the height as needed for whitespace */
+  }
+  
+  /* Popup styles */
+  .task-popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10; /* Ensure it's on top */
+  }
+  
+  .task-popup {
+    background: white;
+    padding: 20px;
+    border-radius: 5px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+
+  .calendar-button {
+    margin: auto; /* Add space to the right of the Go to Calendar button */
+  }
+  
+  .add-task-button {
+    margin: auto; /* Add space to the left of the Add Task button */
+  }
+  
+.button-container {
+  display: flex;
+  justify-content: start; /* Adjust if you want to align buttons differently */
+  gap: 10px; /* This creates equal space between the buttons */
+}
+
+/* Style for all buttons */
+.button-container button {
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  color: white;
+  background-color: #0074d9;
+}
+
+.button-container button:hover {
+  background-color: #0056b3;
+}
+
+/* You can add specific styles for the logout button if needed */
+.logout-button {
+  margin: auto; /* This will push the Log Out button to the far right */
+}
+
+/* Add this CSS to your existing styles */
+.header-buttons {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Push buttons to the right */
+    gap: 10px; /* Adjust the spacing between buttons as needed */
+    margin-right: 20px; /* Add margin to separate buttons from logo */
+  }
+  
+  .header-buttons button {
+    background-color: #136ebd;
+    color: rgb(255, 255, 255);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .header-buttons button:hover {
+    background-color: #0056b3;
+  }
+  
+  /* Add this CSS to your existing styles */
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-right: 20px; /* Add margin to separate buttons from logo */
+  }
+  
+  .left-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjust the spacing between buttons as needed */
+  }
+  
+  .left-buttons button {
+    background-color: #79addc;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .left-buttons button:hover {
+    background-color: #0056b3;
+  }
+  
+  .right-buttons {
+    display: flex;
+    align-items: center;
+    gap: 10px; /* Adjust the spacing between buttons as needed */
+  }
+  
+  .right-buttons button {
+    background-color: #0074d9;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  .right-buttons button:hover {
+    background-color: #0056b3;
+  }
+  

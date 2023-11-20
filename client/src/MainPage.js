@@ -118,7 +118,7 @@ function MainPage() {
           <div id='popup-card'>
             <h2>Login Successful</h2>
             <button type="button" onClick={handleAuthenticate}>Authenticate</button>
-            <button type="button" onClick={closePopup} style={{ backgroundColor: 'red', color: 'white' }}>Close</button>
+            <button type="button" onClick={closePopup} style={{ backgroundColor: '#79addc', color: 'white' }}>Close</button>
           </div>
         </div>
       )}
@@ -129,7 +129,7 @@ function MainPage() {
             <label htmlFor="code">Code:</label>
             <input type="text" id="code" name="code" onChange={(e) => setCode(e.target.value)} />
             <button type="button" onClick={handleCodeVerification}>Verify Code</button>
-            <button type="button" onClick={closePopup} style={{ backgroundColor: 'red', color: 'white' }}>Close</button>
+            <button type="button" onClick={closePopup} style={{ backgroundColor: '#79addc', color: 'white' }}>Close</button>
           </div>
         </div>
       )}

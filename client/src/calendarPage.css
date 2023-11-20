@@ -368,3 +368,105 @@ ul li {
 .task-actions button:hover {
   background-color: #0056b3;
 }
+
+.statistics-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.statistics-popup h2 {
+  margin-bottom: 20px;
+}
+
+.statistics-popup .chart-container {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+
+.statistics-popup .chart-container div {
+  width: 300px; /* Set width for the chart */
+  height: 300px; /* Set height for the chart */
+}
+
+.statistics-popup button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: #79addc;
+
+  cursor: pointer;
+}
+
+.statistics-popup button:hover {
+  background-color: #0056b3;
+}
+
+.show-tasks-button {
+  
+  
+  border: none;
+  border-radius: 5px;
+  background-color: #79addc;
+
+  cursor: pointer;
+}
+
+.popup-card {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* Ensure the popup appears above other content */
+}
+
+.popup-card-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+  max-width: 80%;
+  text-align: left;
+}
+
+.popup-close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: #ff4d4d;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+}
+
+.popup-close-button:hover {
+  background-color: #ff1a1a; /* Darker color on hover */
+}
+
+/* Style task items inside the popup */
+.task-item {
+  margin-bottom: 20px;
+}
