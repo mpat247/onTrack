@@ -113,9 +113,13 @@ function CalendarPage() {
         taskHTML = `
           <div class="task-card">
             <div class="task-details">
-            
-            <a href="#" onClick={() => openEditTaskPopup(task)}><span class="task-name"><strong>${task.taskname}</strong></span></a>
-              <span class="task-progress">
+           
+            <a href="#" onClick={() => openEditTaskPopup(task)}>
+  <span className="task-name"><strong>{task.taskname}</strong></span>
+</a>
+
+          
+                        <span class="task-progress">
                 <span class="progress-pill ${progressColors[progressIndex]}"></span>
                 <em>${progressText}</em>
               </span>
@@ -237,7 +241,11 @@ function CalendarPage() {
           <div className="task-item" key={task.taskId}>
             <label htmlFor={`task-${task.taskId}`}>
               <input type="checkbox" id={`task-${task.taskId}`} />
-              <a href="#" onClick={() => openEditTaskPopup(task)}><strong>{task.taskname}</strong></a>
+              <a href="#" onClick={() => openEditTaskPopup(task)}>
+  <span className="task-name"><strong>{task.taskname}</strong></span>
+</a>
+
+
               <p>End Date: {task.enddate.split('T')[0]}</p>
               <p>Status: {progress[task.progress]}</p>
             </label>
@@ -465,7 +473,9 @@ function CalendarPage() {
               {tasks.map(task => (
                 <div className="task-item" key={task.taskId}>
                   {/* Make the task name clickable */}
-                  <h3 onClick={() => openEditTaskPopup(task)} style={{ cursor: 'pointer' }}>{task.taskname}</h3>
+                  <a href="#" onClick={() => openEditTaskPopup(task)}>
+  <span className="task-name"><strong>{task.taskname}</strong></span>
+</a>
                   <p>Description: {task.description}</p>
                   <p>End Date: {task.enddate.split('T')[0]}</p>
                   <p>Status: {progress[task.progress]}</p>
