@@ -192,12 +192,13 @@ router.post("/", async (req, res) => {
 router.put("/", async (req, res) => {
     // Get parameters to edit
     const { id, task, description, enddate, progress, priority } = req.body;
+    console.log(req.body)
     try {
         const connection = await oracledb.getConnection(dbConfig);
+        console.log('hello')
         if (!id) {
             return res.status(400).send({ error: "Task Id is required" });
         }
-
         // Check if the user exists
         let taskexists = false;
         try {
