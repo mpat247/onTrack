@@ -7,7 +7,7 @@ const swaggerUI = require('swagger-ui-express')
 const swaggerSpec = require('./swagger');
 const cors = require('cors');
 
-oracledb.initOracleClient({ libDir: '/Users/manav/Documents/Fourth Year/714/instantclient_19_8' });
+//oracledb.initOracleClient({ libDir: '/Users/manav/Documents/Fourth Year/714/instantclient_19_8' });
 
 
 // Middleware

@@ -37,7 +37,7 @@ function MainPage() {
       if (response.status === 200) {
         localStorage.setItem('storageName', newName);
         localStorage.setItem('storage2', userId);
-        window.location = `http://localhost:3000/calendarpage`;
+        window.location = `http://localhost:3000/homepage`;
       } else {
         setLoginStatus('Code verification failed.');
       }

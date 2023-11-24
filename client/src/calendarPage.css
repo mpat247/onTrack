@@ -129,7 +129,7 @@ body {
 
 
 .days .day:not(.next):not(.prev):hover {
-  color: #fff;
+  color: #2a3cdf;
   background-color: var(--primary-color);
   transform: scale(1.05);
 }
