@@ -114,9 +114,9 @@ function CalendarPage() {
           <div class="task-card">
             <div class="task-details">
            
-            <a href="#" onClick={() => openEditTaskPopup(task)}>
-  <span className="task-name"><strong>{task.taskname}</strong></span>
-</a>
+            <a href="#" onclick="openEditTaskPopup(${JSON.stringify(task)})">
+        <span className="task-name"><strong>${task.taskname}</strong></span>
+      </a>
 
           
                         <span class="task-progress">
