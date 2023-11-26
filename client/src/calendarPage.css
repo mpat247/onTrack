@@ -134,7 +134,7 @@ body {
   transform: scale(1.05);
 }
 .days .day.today {
-  color: #fff;
+  color: black; /* Change the text color to black or a suitable color */
   background-color: var(--primary-color);
 }
 .days .day.next,
@@ -469,4 +469,9 @@ ul li {
 /* Style task items inside the popup */
 .task-item {
   margin-bottom: 20px;
+}
+
+.clickable {
+  cursor: pointer;
+  /* Add any other styles to make it visually clickable */
 }

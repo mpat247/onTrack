@@ -41,7 +41,7 @@ router.get("/", async (req, res) => {
     }
 });
 
-// Fetch task based on ID
+// Fetch tasks based on userID
 router.get("/:userId", async (req, res) => {
     const { userId } = req.params;
     console.log(userId)
@@ -55,6 +55,56 @@ router.get("/:userId", async (req, res) => {
                 `SELECT * FROM TASK WHERE USER_ID = :userId`,
                 { userId: userId } // Make sure userId is correctly formatted as per the database
             );
+            // Check if any task exists
+            if (result.rows.length > 0) {
+                // Create an array of tasks
+                const tasks = result.rows.map((row) => {
+                    return {
+                        taskId: row[0],
+                        taskname: row[1],
+                        description: row[2],
+                        userid: row[3],
+                        createdate: row[4],
+                        enddate: row[5],
+                        priority: row[6],
+                        progress: row[7]
+                    };
+                });
+            
+                res.status(200).send({ data: tasks, message: "Tasks found!" });
+            } else {
+                res.status(404).send({ error: "Tasks not found" });
+            }
+        } catch (error) {
+            res.status(500).send({ error: "Database Query Error", details: error.message });
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+        }
+    } catch (error) {
+        res.status(500).send({ error: "Database Connection Error", details: error.message });
+    }
+});
+
+router.get("/:taskId", async (req, res) => {
+    const { taskId } = req.params;
+    console.log(taskId)
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        try {
+            // Query to fetch tasks for the user
+            const userResult2 = await userConnection.execute(
+                `SELECT * FROM TASK WHERE TASK_ID = :taskId`,
+                {taskId}
+            );
+    console.log(taskId)
 
             // Check if any task exists
             if (result.rows.length > 0) {
@@ -233,10 +283,14 @@ router.put("/", async (req, res) => {
             );
             await connection.commit();
 
+            const result2 = await connection.execute(
+                `SELECT * FROM TASK WHERE TASK_ID = :id`,
+                { id } // Make sure userId is correctly formatted as per the database
+            );
 
             // Check if the task was updated successfully
             if (result.rowsAffected === 1) {
-                res.status(200).send({ data: "Task updated successfully" });
+                res.status(200).send({ data: result2.rows });
             } else {
                 res.status(404).send({ error: "Task not found" });
             }

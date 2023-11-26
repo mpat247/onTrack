@@ -186,19 +186,20 @@ function HomePage() {
             <h2>Your Tasks: </h2>
           </div>
           <div className="tasks-list">
-            {tasks.map((task, index) => (
-              <div key={index} className="task-item">
-                <p className="task-name">
-                  <strong>{task.taskname}</strong>
-                </p>
-                <p className="due-date">
-                  Due Date: {task.enddate.split('T')[0]}
-                </p>
-                <p className="days-left">
-                  {calculateDaysLeft(task.enddate)} days left
-                </p>
-              </div>
-            ))}
+          {tasks.map((task, index) => (
+  <div key={index} className="task-item">
+    <p className="task-name">
+      <strong>{task.taskname}</strong>
+    </p>
+    <p className="due-date">
+      Due Date: {task.enddate ? task.enddate.split('T')[0] : 'N/A'}
+    </p>
+    <p className="days-left">
+      {calculateDaysLeft(task.enddate)} days left
+    </p>
+  </div>
+))}
+
             <div className="add-task-form">
               <div className="button-container">
                 <button className="calendar-button" onClick={goToCalendar}>

@@ -5,6 +5,8 @@ import './calendarPage.css';
 import 'font-awesome/css/font-awesome.min.css';
 import { Pie } from 'react-chartjs-2';
 import 'chart.js/auto';
+import { Link } from 'react-router-dom';
+
 
 const months = [
   "January", "February", "March", "April", "May", "June",
@@ -24,8 +26,14 @@ function CalendarPage() {
   const userID = localStorage.getItem('storage2'); // Hardcoded for testing
   const [editTaskData, setEditTaskData] = useState(null);
   const [showEditTaskPopup, setShowEditTaskPopup] = useState(false);
-  const [editingTask, setEditingTask] = useState(null);
-
+  const [editData, setEditData] = useState({
+    task: '', // Initialize with default values if needed
+    description: '',
+    enddate: '',
+    progress: '',
+    priority: '',
+  });
+    const [taskId, setTaskId] = useState(null);
 
   const [newTask, setNewTask] = useState({ 
     task: '',
@@ -36,16 +44,6 @@ function CalendarPage() {
     endDate: '',
     priority: '' 
   });
-
-  const [editTaskFormData, setEditTaskFormData] = useState({
-    task: "",
-    description: "",
-    createDate: "",
-    endDate: "",
-    progress: "",
-    priority: "",
-  });
-  
 
   const [showPopUpCard, setShowPopUpCard] = useState(false);
   const [selectedTasksForDay, setSelectedTasksForDay] = useState([]);
@@ -72,9 +70,8 @@ function CalendarPage() {
       if (response.status === 200) {
         const updatedTasks = response.data.data.map(task => ({
           ...task,
-          displayDate: task.enddate ? task.enddate.split('T')[0] : null,
+          displayDate: task.enddate.split('T')[0] // Extracting the date part
         }));
-        
         setTasks(updatedTasks);
   
         // Call renderCalendar after state update
@@ -85,7 +82,6 @@ function CalendarPage() {
       console.error('Error fetching tasks:', error);
     }
   }
-  
 
   const viewAllTasks = (dateToShowTasks) => {
     const tasksToShow = tasks.filter(task => task.displayDate === dateToShowTasks);
@@ -122,28 +118,25 @@ function CalendarPage() {
         const task = tasksForDay[0];
         const progressIndex = task.progress;
         const progressText = progress[progressIndex];
-        const endDatePart = task.enddate ? task.enddate.split('T')[0] : null;
   
-        taskHTML = (
-          <div className="task-card">
-            <div className="task-details">
-              <span className="task-name"><strong>{task.taskname}</strong></span>
-              <span className="task-progress">
-                <span className={`progress-pill ${progressColors[progressIndex]}`}></span>
-                <em>{progressText}</em>
-              </span>
-            </div>
-            <p>End Date: {endDatePart}</p>
-          </div>
-        );
+        // Create a task card div with an "editable" data attribute
+        taskHTML = `
+           <div class="task-card">
+    <div class="task-details">
+      <span className="task-name"><strong>${task.taskname}</strong></span>
+      <span class="task-progress">
+        <span class="progress-pill ${progressColors[progressIndex]}"></span>
+        <em>${progressText}</em>
+      </span>
+    </div>
+  </div>`;
       } else if (tasksForDay.length > 1) {
-        taskHTML = (
-          <div className="task-card">
-            <div className="task-details">
-              <button className="show-tasks-button" data-date={fullDate}>View All</button>
+        taskHTML = `
+          <div class="task-card">
+            <div class="task-details">
+              <button class="show-tasks-button" data-date="${fullDate}">View All</button>
             </div>
-          </div>
-        );
+          </div>`;
       }
   
       if (i === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()) {
@@ -158,6 +151,8 @@ function CalendarPage() {
     }
     daysContainer.innerHTML = days;
   
+    
+  
     // Add event listeners to the "View All" buttons
     const viewAllButtons = document.querySelectorAll(".show-tasks-button");
     viewAllButtons.forEach(button => {
@@ -169,6 +164,7 @@ function CalendarPage() {
       });
     });
   }
+  
   
   
   useEffect(() => {
@@ -255,9 +251,11 @@ function CalendarPage() {
             <label htmlFor={`task-${task.taskId}`}>
               <input type="checkbox" id={`task-${task.taskId}`} />
               <a href="#" onClick={() => openEditTaskPopup(task)}>
-                <span className="task-name"><strong>{task.taskname}</strong></span>
-              </a>
-              <p>End Date: {task.enddate ? task.enddate.split('T')[0] : 'N/A'}</p>
+  <span className="task-name"><strong>{task.taskname}</strong></span>
+</a>
+
+
+              <p>End Date: {task.enddate.split('T')[0]}</p>
               <p>Status: {progress[task.progress]}</p>
             </label>
           </div>
@@ -265,9 +263,6 @@ function CalendarPage() {
       </div>
     );
   }
-  
-  
-  
 
   function renderTaskPopup() {
     if (!showTaskPopup) return null;
@@ -357,14 +352,6 @@ function CalendarPage() {
       </div>
     );
   }
-
-  // Helper function to format date as "YYYY-MM-DD"
-  function formatDate(date) {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
   
   const PopUpCard = ({ onClose }) => {
     return (
@@ -377,6 +364,7 @@ function CalendarPage() {
           <div className="task-list">
             {selectedTasksForDay.map(task => (
               <div className="task-item" key={task.taskId}>
+                {/* Modify the "Edit" link to close the PopUpCard */}
                 <a
                   href="#"
                   onClick={() => {
@@ -387,7 +375,7 @@ function CalendarPage() {
                   <strong>{task.taskname}</strong>
                 </a>
                 <p>Description: {task.description}</p>
-                <p>End Date: {task.enddate ? task.enddate.split('T')[0] : ''}</p>
+                <p>End Date: {task.enddate.split('T')[0]}</p>
                 <p>Status: {progress[task.progress]}</p>
               </div>
             ))}
@@ -396,45 +384,52 @@ function CalendarPage() {
       </div>
     );
   };
-  
-  
-  
 
   function openEditTaskPopup(task) {
-    setEditTaskData(task); // Store the task data in editTaskData state
-    setEditTaskFormData({
-      id: editTaskData ? editTaskData.taskId : '',
-      task: task.task,
-      description: task.description,
-      createDate: task.createDate,
-      endDate: task.endDate,
-      progress: task.progress.toString(), // Convert progress to string as it's a select value
-      priority: task.priority.toString(), // Convert priority to string as it's a select value
-    });
+    console.log(task.taskId)
+    setEditTaskData(task);
+    setTaskId(task.taskId);
     setShowEditTaskPopup(true);
   }
-  
 
-  async function saveEditedTask() {
+  async function saveEditedTask(editTaskData) {
     try {
-      const response = await axios.put(
-        `http://localhost:5001/tasks`,
-        editTaskFormData
-      );
-      if (response.status === 200) {
-        // Update the tasks after saving
-        fetchTasks(userID);
-        setShowEditTaskPopup(false); // Close the edit task popup
-        window.location.reload(); // Refresh the page
-
+      editTaskData.taskId = taskId;
+      console.log(editTaskData.taskId)
+      console.log(editTaskData)
+      // Fetch the original task data for comparison
+      const originalTaskResponse = await axios.get(`http://localhost:5001/tasks?taskId=${editTaskData.taskId}`);
+      console.log(originalTaskResponse)
+      if (originalTaskResponse.status === 200) {
+        const originalTask = originalTaskResponse.data.data;
+        console.log(originalTask);
+        // Remove the createDate property from the edited task data
+        const { createDate, ...editedDataWithoutCreateDate } = editTaskData;
+        
+        // Remove the createDate property from the original task data
+        delete originalTask.createDate;
+  
+        // Merge the edited data with the original data to preserve missing fields
+        const updatedTask = { ...originalTask, ...editedDataWithoutCreateDate };
+    
+        console.log(updatedTask);
+    
+        const response = await axios.put(`http://localhost:5001/tasks`, updatedTask);
+        if (response.status === 200) {
+          // Update the tasks after saving
+          fetchTasks(userID);
+          setShowEditTaskPopup(false); // Close the edit task popup
+        }
+      } else {
+        console.error('Error fetching original task data');
       }
     } catch (error) {
-      console.error("Error saving edited task:", error);
+      console.error('Error saving edited task:', error);
     }
   }
   
-
-
+  
+  
 
   return (
     <body>
@@ -451,6 +446,12 @@ function CalendarPage() {
           </a>
           <button className="view-mode-button" onClick={() => setViewMode('calendar')}>Calendar View</button>
           <button className="view-mode-button" onClick={() => setViewMode('list')}>List View</button>
+          <Link to="/homepage"><button className="view-mode-button">
+    <i className="fas fa-home" style={{ color: 'white' }}></i>
+</button></Link>
+
+
+
         </div>
       </header>
 
@@ -529,70 +530,106 @@ function CalendarPage() {
 
       {showPopUpCard && <PopUpCard onClose={() => setShowPopUpCard(false)} />}
       
-      {/* Edit Task Popup */}
       {showEditTaskPopup && editTaskData && (
-        <div className="task-popup">
-          <div className="task-card">
-            <h2>Edit Task</h2>
-            
-            <form onSubmit={(e) => {
-              e.preventDefault();
-              saveEditedTask(editTaskData);
-            }}>
-              <div className="task-inputs">
-                
-              <input
-              type="text"
-              placeholder="Task Name"
-              value={editTaskFormData.task}
-              onChange={e => setEditTaskFormData({ ...editTaskFormData, task: e.target.value })}
-            />
-            <textarea
-              placeholder="Description"
-              value={editTaskFormData.description}
-              onChange={e => setEditTaskFormData({ ...editTaskFormData, description: e.target.value })}
-            />
-            <input
-              type="date"
-              placeholder="Create Date"
-              value={editTaskFormData.createDate}
-              onChange={e => setEditTaskFormData({ ...editTaskFormData, createDate: e.target.value })}
-            />
-            <input
-              type="date"
-              placeholder="End Date"
-              value={editTaskFormData.enddate ? editTaskFormData.enddate.split('T')[0] : ''}
-              onChange={e => setEditTaskFormData({ ...editTaskFormData, endDate: e.target.value })}
-            />
-            <select
-              value={editTaskFormData.progress}
-              onChange={e => setEditTaskFormData({ ...editTaskFormData, progress: e.target.value })}
-            >
-              <option value="">Select Your Progress</option> {/* Added default option */}
-              <option value="0">To-do</option>
-              <option value="1">In Progress</option>
-              <option value="2">Done</option>
-            </select>
+  <div className="task-popup">
+    <div className="task-card">
+    <h2 style={{ textAlign: 'center' }}>Edit Task</h2>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          saveEditedTask(editData);
+        }}
+      >
+        <div className="task-inputs">
+        <div className="input-group">
+  <label>Task Name</label>
+  <input
+    type="text"
+    placeholder="Task Name"
+    value={editData.task === '' ? editTaskData.task : editData.task}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        task: e.target.value
+      })
+    }
+  />
+</div>
+<div className="input-group">
+  <label>Description</label>
+  <textarea
+    placeholder="Description"
+    value={editData.description === '' ? editTaskData.description : editData.description}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        description: e.target.value
+      })
+    }
+  />
+</div>
+<div className="input-group">
+  <label>End Date</label>
+  <input
+    type="date"
+    placeholder="End Date"
+    value={editData.enddate === '' ? editTaskData.enddate : editData.enddate}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        enddate: e.target.value
+      })
+    }
+  />
+</div>
+<div className="input-group">
+  <label>Progress</label>
+  <select
+    value={editData.progress === '' ? editTaskData.progress : editData.progress}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        progress: e.target.value
+      })
+    }
+  >
+    <option value="">Select Your Progress</option>
+    <option value="0">To-do</option>
+    <option value="1">In Progress</option>
+    <option value="2">Done</option>
+  </select>
+</div>
+<div className="input-group">
+  <label>Priority</label>
+  <select
+    value={editData.priority === '' ? editTaskData.priority : editData.priority}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        priority: e.target.value
+      })
+    }
+  >
+    <option value="">Select Priority</option>
+    <option value="0">Low</option>
+    <option value="1">Medium</option>
+    <option value="2">High</option>
+  </select>
+</div>
 
-            <select
-              value={editTaskFormData.priority}
-              onChange={e => setEditTaskFormData({ ...editTaskFormData, priority: e.target.value })}
-            >
-              <option value="">Select Priority</option> {/* Added default option */}
-              <option value="0">Low</option>
-              <option value="1">Medium</option>
-              <option value="2">High</option>
-            </select>
 
-              </div>
-              <div className="task-actions">
-                <button type="submit">Save</button>
-                <button onClick={() => setShowEditTaskPopup(false)}>Cancel</button>
-              </div>
-            </form>
-          </div>
         </div>
-      )}
+        <div className="task-actions">
+          <button type="submit">Save</button>
+          <button onClick={() => setShowEditTaskPopup(false)}>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
+
+
+
     </body>
       );
 }
