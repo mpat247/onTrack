@@ -250,3 +250,7 @@
     background-color: #0056b3;
   }
   
+  .clickable {
+    cursor: pointer;
+    /* Add any other styles to make it visually clickable */
+  }

@@ -122,9 +122,9 @@ body {
 }
 
 .days .day .task-card .task-details .task-name {
-  white-space: nowrap; /* Prevent text from wrapping to the next line */
-  overflow: hidden; /* Hide overflowing text */
-  text-overflow: ellipsis; /* Show ellipsis (...) for hidden text */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 
@@ -213,6 +213,10 @@ li a:hover:not(.active) {
   font-size: 1rem;
   margin-bottom: 0px; 
   color: black;
+  white-space: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .task-progress {

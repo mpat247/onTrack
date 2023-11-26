@@ -42,7 +42,7 @@ router.get("/", async (req, res) => {
 });
 
 // Fetch tasks based on userID
-router.get("/:userId", async (req, res) => {
+router.get("/users/:userId", async (req, res) => {
     const { userId } = req.params;
     console.log(userId)
 
@@ -91,7 +91,8 @@ router.get("/:userId", async (req, res) => {
     }
 });
 
-router.get("/:taskId", async (req, res) => {
+// Fetch task based on taskId
+router.get("/tasks/:taskId", async (req, res) => {
     const { taskId } = req.params;
     console.log(taskId)
 
@@ -99,30 +100,26 @@ router.get("/:taskId", async (req, res) => {
         const connection = await oracledb.getConnection(dbConfig);
 
         try {
-            // Query to fetch tasks for the user
-            const userResult2 = await userConnection.execute(
+            // Query to fetch task for the task id
+            const result = await connection.execute(
                 `SELECT * FROM TASK WHERE TASK_ID = :taskId`,
-                {taskId}
+                { taskId: taskId } // Make sure userId is correctly formatted as per the database
             );
-    console.log(taskId)
-
             // Check if any task exists
             if (result.rows.length > 0) {
                 // Create an array of tasks
-                const tasks = result.rows.map((row) => {
-                    return {
-                        taskId: row[0],
-                        taskname: row[1],
-                        description: row[2],
-                        userid: row[3],
-                        createdate: row[4],
-                        enddate: row[5],
-                        priority: row[6],
-                        progress: row[7]
-                    };
-                });
+                const tasks = {
+                    taskId: result.rows[0][0],
+                    taskname: result.rows[0][1],
+                    description: result.rows[0][2],
+                    userid: result.rows[0][3],
+                    createdate: result.rows[0][4],
+                    enddate: result.rows[0][5],
+                    priority: result.rows[0][6],
+                    progress: result.rows[0][7],
+                };
             
-                res.status(200).send({ data: tasks, message: "Tasks found!" });
+                res.status(200).send({ payload: tasks, message: "Task found!" });
             } else {
                 res.status(404).send({ error: "Tasks not found" });
             }

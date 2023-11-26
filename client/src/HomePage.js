@@ -19,13 +19,25 @@ function HomePage() {
   const userData = localStorage.getItem('storageName');
   const userID = localStorage.getItem('storage2');
 
+  const [editTaskData, setEditTaskData] = useState(null);
+const [showEditTaskPopup, setShowEditTaskPopup] = useState(false);
+const [editData, setEditData] = useState({
+  task: '',
+  description: '',
+  enddate: '',
+  progress: '',
+  priority: '',
+});
+const [taskId, setTaskId] = useState(null);
+
+
   useEffect(() => {
     fetchTasks();
   }, []);
 
   const fetchTasks = async () => {
     try {
-      const response = await axios.get(`http://localhost:5001/tasks/${userID}`);
+      const response = await axios.get(`http://localhost:5001/tasks/users/${userID}`);
       if (response.status === 200) {
         setTasks(response.data.data);
       }
@@ -142,6 +154,76 @@ function HomePage() {
     );
   };
 
+  function openEditTaskPopup(task) {
+    console.log(task.taskId);
+    setEditTaskData(task);
+    setTaskId(task.taskId);
+    setShowEditTaskPopup(true);
+  }
+  
+  async function saveEditedTask(editTaskData) {
+    try {
+      editTaskData.taskId = taskId;
+      console.log(editTaskData.taskId);
+      console.log(editTaskData);
+  
+      // Fetch the original task data for comparison
+      const originalTaskResponse = await axios.get(`http://localhost:5001/tasks/tasks/${taskId}`);
+      console.log(originalTaskResponse);
+  
+      if (originalTaskResponse.status === 200) {
+        const originalTask = originalTaskResponse.data.payload;
+        console.log(originalTask);
+        console.log(originalTask.taskname);
+  
+        // Create an object to hold the final edited data
+        const finalEditData = {
+          task: editTaskData.task !== '' ? editTaskData.task : originalTask.taskname,
+          description: editTaskData.description !== '' ? editTaskData.description : originalTask.description,
+          enddate: editTaskData.enddate !== '' ? editTaskData.enddate : originalTask.enddate,
+          progress: editTaskData.progress !== '' ? editTaskData.progress : originalTask.progress,
+          priority: editTaskData.priority !== '' ? editTaskData.priority : originalTask.priority,
+          id: editTaskData.taskId,
+        };
+  
+        console.log(finalEditData);
+  
+        // Now, finalEditData contains the merged data with non-empty values from
+        // editTaskData and originalTask where necessary
+  
+        const response = await axios.put(`http://localhost:5001/tasks`, finalEditData);
+        if (response.status === 200) {
+          // Update the tasks after saving
+          fetchTasks(userID);
+          setShowEditTaskPopup(false); // Close the edit task popup
+        }
+      } else {
+        console.error('Error fetching original task data');
+      }
+    } catch (error) {
+      console.error('Error saving edited task:', error);
+    }
+  }
+
+  const handleDeleteTask = async () => {
+    if (editTaskData && editTaskData.taskId) {
+      try {
+        const response = await axios.delete(`http://localhost:5001/tasks/${editTaskData.taskId}`);
+        if (response.status === 200) {
+          // Task deleted successfully
+          fetchTasks(); // Refresh the task list
+          setShowEditTaskPopup(false); // Close the edit task popup
+        } else {
+          console.error('Error deleting task:', response.data.message);
+        }
+      } catch (error) {
+        console.error('Error deleting task:', error);
+      }
+    }
+  };
+  
+  
+
   function handleSignOut() {
     // Your sign-out logic here
     localStorage.clear(); // Example: Clearing localStorage
@@ -152,9 +234,18 @@ function HomePage() {
     const endDateTime = new Date(endDate).getTime();
     const currentDate = new Date().getTime();
     const timeLeft = endDateTime - currentDate;
-    const daysLeft = Math.ceil(timeLeft / (1000 * 3600 * 24)); // Calculate days left
-    return daysLeft;
+    const daysLeft = Math.floor(timeLeft / (1000 * 3600 * 24)); // Calculate days left
+  
+    if (daysLeft < 0) {
+      return `${Math.abs(daysLeft)} days late`;
+    } else if (daysLeft === 0) {
+      return "Today";
+    } else {
+      return `${daysLeft} days left`;
+    }
   };
+  
+  
 
   return (
     <div className="homepage">
@@ -187,7 +278,7 @@ function HomePage() {
           </div>
           <div className="tasks-list">
           {tasks.map((task, index) => (
-  <div key={index} className="task-item">
+  <div key={index} className="task-item clickable" onClick={() => openEditTaskPopup(task)}>
     <p className="task-name">
       <strong>{task.taskname}</strong>
     </p>
@@ -195,7 +286,7 @@ function HomePage() {
       Due Date: {task.enddate ? task.enddate.split('T')[0] : 'N/A'}
     </p>
     <p className="days-left">
-      {calculateDaysLeft(task.enddate)} days left
+      {calculateDaysLeft(task.enddate)}
     </p>
   </div>
 ))}
@@ -218,6 +309,104 @@ function HomePage() {
             </div>
           </div>
           {renderTaskPopup()}
+           {showEditTaskPopup && editTaskData && (
+  <div className="task-popup">
+    <div className="task-card">
+    <h2 style={{ textAlign: 'center' }}>Edit Task</h2>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          saveEditedTask(editData);
+        }}
+      >
+        <div className="task-inputs">
+        <div className="input-group">
+  <label>Task Name</label>
+  <input
+    type="text"
+    placeholder="Task Name"
+    value={editData.task === '' ? editTaskData.task : editData.task}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        task: e.target.value
+      })
+    }
+  />
+</div>
+<div className="input-group">
+  <label>Description</label>
+  <textarea
+    placeholder="Description"
+    value={editData.description === '' ? editTaskData.description : editData.description}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        description: e.target.value
+      })
+    }
+  />
+</div>
+<div className="input-group">
+  <label>End Date</label>
+  <input
+    type="date"
+    placeholder="End Date"
+    value={editData.enddate === '' ? editTaskData.enddate : editData.enddate}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        enddate: e.target.value
+      })
+    }
+  />
+</div>
+<div className="input-group">
+  <label>Progress</label>
+  <select
+    value={editData.progress === '' ? editTaskData.progress : editData.progress}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        progress: e.target.value
+      })
+    }
+  >
+    <option value="">Select Your Progress</option>
+    <option value="0">To-do</option>
+    <option value="1">In Progress</option>
+    <option value="2">Done</option>
+  </select>
+</div>
+<div className="input-group">
+  <label>Priority</label>
+  <select
+    value={editData.priority === '' ? editTaskData.priority : editData.priority}
+    onChange={(e) =>
+      setEditData({
+        ...editData,
+        priority: e.target.value
+      })
+    }
+  >
+    <option value="">Select Priority</option>
+    <option value="0">Low</option>
+    <option value="1">Medium</option>
+    <option value="2">High</option>
+  </select>
+</div>
+
+
+        </div>
+        <div className="task-actions">
+          <button type="submit">Save</button>
+          <button onClick={handleDeleteTask}>Delete</button> {/* Add delete button */}
+          <button onClick={() => setShowEditTaskPopup(false)}>Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
         </div>
       </div>
       <div className="bottom-whitespace"></div> {/* This is for adding whitespace at the bottom */}
@@ -226,3 +415,4 @@ function HomePage() {
 }
 
 export default HomePage;
+

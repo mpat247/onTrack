@@ -66,7 +66,7 @@ function CalendarPage() {
 
   async function fetchTasks(userID) {
     try {
-      const response = await axios.get(`http://localhost:5001/tasks/${userID}`);
+      const response = await axios.get(`http://localhost:5001/tasks/users/${userID}`);
       if (response.status === 200) {
         const updatedTasks = response.data.data.map(task => ({
           ...task,
@@ -89,47 +89,48 @@ function CalendarPage() {
     setShowPopUpCard(true);
   };
 
-  function renderCalendar(currentMonth, currentYear) {
-    if (viewMode !== 'calendar') return;
-  
+  const renderCalendar = (currentMonth, currentYear) => {
     const daysContainer = document.querySelector(".days");
     const monthLabel = document.querySelector(".month");
-  
-    monthLabel.innerHTML = `${months[currentMonth]} ${currentYear}`;
-  
+
+    if (!daysContainer || !monthLabel) {
+      return; // Exit early if the elements are not available
+    }
+
     let days = "";
     const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
     const lastDayIndex = new Date(currentYear, currentMonth + 1, 0).getDay();
     const prevLastDay = new Date(currentYear, currentMonth, 0).getDate();
     const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate();
     const nextDays = 7 - lastDayIndex - 1;
-  
+
     for (let x = firstDayIndex; x > 0; x--) {
       days += `<div class="day prev">${prevLastDay - x + 1}</div>`;
     }
-  
+
     for (let i = 1; i <= lastDay; i++) {
       const fullDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
       const tasksForDay = tasks.filter(task => task.displayDate === fullDate);
-  
+
       let taskHTML = "";
-  
+
       if (tasksForDay.length === 1) {
         const task = tasksForDay[0];
         const progressIndex = task.progress;
         const progressText = progress[progressIndex];
-  
+        const edittingTask = () => openEditTaskPopup(task);
+        
         // Create a task card div with an "editable" data attribute
         taskHTML = `
-           <div class="task-card">
-    <div class="task-details">
-      <span className="task-name"><strong>${task.taskname}</strong></span>
-      <span class="task-progress">
-        <span class="progress-pill ${progressColors[progressIndex]}"></span>
-        <em>${progressText}</em>
-      </span>
-    </div>
-  </div>`;
+          <div class="task-card clickable">
+          <div class="task-details">
+          <span class="task-name" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"><strong>${task.taskname}</strong></span>
+          <span class="task-progress">
+            <span class="progress-pill ${progressColors[progressIndex]}"></span>
+            <em>${progressText}</em>
+          </span>
+        </div>
+          </div>`;
       } else if (tasksForDay.length > 1) {
         taskHTML = `
           <div class="task-card">
@@ -138,33 +139,39 @@ function CalendarPage() {
             </div>
           </div>`;
       }
-  
+
       if (i === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()) {
         days += `<div class="day today">${i}${taskHTML}</div>`;
       } else {
         days += `<div class="day">${i}${taskHTML}</div>`;
       }
     }
-  
+
     for (let j = 1; j <= nextDays; j++) {
       days += `<div class="day next">${j}</div>`;
     }
     daysContainer.innerHTML = days;
-  
-    
-  
-    // Add event listeners to the "View All" buttons
+
+    // Add event listeners to the "View All" buttons after the component is mounted
     const viewAllButtons = document.querySelectorAll(".show-tasks-button");
+    const clickHandler = (button) => {
+      const dateToShowTasks = button.getAttribute("data-date");
+      const tasksToShow = tasks.filter(task => task.displayDate === dateToShowTasks);
+      setSelectedTasksForDay(tasksToShow);
+      setShowPopUpCard(true);
+    };
+
     viewAllButtons.forEach(button => {
-      button.addEventListener("click", () => {
-        const dateToShowTasks = button.getAttribute("data-date");
-        const tasksToShow = tasks.filter(task => task.displayDate === dateToShowTasks);
-        setSelectedTasksForDay(tasksToShow);
-        setShowPopUpCard(true);
-      });
+      button.addEventListener("click", () => clickHandler(button));
     });
-  }
-  
+
+    // Clean up event listeners when the component unmounts
+    return () => {
+      viewAllButtons.forEach(button => {
+        button.removeEventListener("click", () => clickHandler(button));
+      });
+    };
+  };
   
   
   useEffect(() => {
@@ -395,26 +402,34 @@ function CalendarPage() {
   async function saveEditedTask(editTaskData) {
     try {
       editTaskData.taskId = taskId;
-      console.log(editTaskData.taskId)
-      console.log(editTaskData)
-      // Fetch the original task data for comparison
-      const originalTaskResponse = await axios.get(`http://localhost:5001/tasks?taskId=${editTaskData.taskId}`);
-      console.log(originalTaskResponse)
-      if (originalTaskResponse.status === 200) {
-        const originalTask = originalTaskResponse.data.data;
-        console.log(originalTask);
-        // Remove the createDate property from the edited task data
-        const { createDate, ...editedDataWithoutCreateDate } = editTaskData;
-        
-        // Remove the createDate property from the original task data
-        delete originalTask.createDate;
+      console.log(editTaskData.taskId);
+      console.log(editTaskData);
   
-        // Merge the edited data with the original data to preserve missing fields
-        const updatedTask = { ...originalTask, ...editedDataWithoutCreateDate };
-    
-        console.log(updatedTask);
-    
-        const response = await axios.put(`http://localhost:5001/tasks`, updatedTask);
+      // Fetch the original task data for comparison
+      const originalTaskResponse = await axios.get(`http://localhost:5001/tasks/tasks/${taskId}`);
+      console.log(originalTaskResponse);
+  
+      if (originalTaskResponse.status === 200) {
+        const originalTask = originalTaskResponse.data.payload;
+        console.log(originalTask);
+        console.log(originalTask.taskname)
+  
+        // Create an object to hold the final edited data
+        const finalEditData = {
+          task: editTaskData.task !== '' ? editTaskData.task : originalTask.taskname,
+          description: editTaskData.description !== '' ? editTaskData.description : originalTask.description,
+          enddate: editTaskData.enddate !== '' ? editTaskData.enddate : originalTask.enddate,
+          progress: editTaskData.progress !== '' ? editTaskData.progress : originalTask.progress,
+          priority: editTaskData.priority !== '' ? editTaskData.priority : originalTask.priority,
+          id: editTaskData.taskId,
+        };
+  
+        console.log(finalEditData);
+  
+        // Now, finalEditData contains the merged data with non-empty values from
+        // editTaskData and originalTask where necessary
+  
+        const response = await axios.put(`http://localhost:5001/tasks`, finalEditData);
         if (response.status === 200) {
           // Update the tasks after saving
           fetchTasks(userID);
@@ -427,6 +442,8 @@ function CalendarPage() {
       console.error('Error saving edited task:', error);
     }
   }
+  
+  
   
   
   
