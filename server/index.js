@@ -23,6 +23,9 @@ app.use('/users', userRoute);
 const taskRoute = require('./routes/tasks');
 app.use('/tasks', taskRoute);
 
+const commentRoute = require('./routes/comments');
+app.use('/comments', commentRoute);
+
 // Port
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));  
