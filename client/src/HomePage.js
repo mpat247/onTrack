@@ -29,6 +29,9 @@ const [editData, setEditData] = useState({
   priority: '',
 });
 const [taskId, setTaskId] = useState(null);
+const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+const [deleteConfirmationTaskId, setDeleteConfirmationTaskId] = useState(false);
+const [currentTaskId, setCurrentTaskId] = useState(null);
 
 
   useEffect(() => {
@@ -48,7 +51,13 @@ const [taskId, setTaskId] = useState(null);
 
   const handleCreateTask = async (e) => {
     e.preventDefault();
-
+  
+    // Check if any of the required fields are empty
+    if (!newTask.task || !newTask.description || !newTask.createDate || !newTask.endDate || newTask.progress === '' || newTask.priority === '') {
+      alert('Please fill in all required fields.'); // Display an alert message
+      return; // Exit the function without creating the task
+    }
+  
     const taskData = {
       task: newTask.task,
       description: newTask.description,
@@ -58,7 +67,7 @@ const [taskId, setTaskId] = useState(null);
       endDate: newTask.endDate,
       priority: newTask.priority
     };
-
+  
     try {
       const response = await axios.post(`http://localhost:5001/tasks`, taskData);
       if (response.status === 200) {
@@ -78,13 +87,16 @@ const [taskId, setTaskId] = useState(null);
       console.error('Error creating task:', error);
     }
   };
+  
   function goToCalendar() {
     window.location = 'http://localhost:3000/calendarPage';
   }
 
   const renderTaskPopup = () => {
+    console.log('Render task popup called'); // Add this line for debugging
+  
     if (!showTaskPopup) return null;
-
+  
     return (
       <div className="task-popup-overlay">
         <div className="task-popup">
@@ -121,60 +133,57 @@ const [taskId, setTaskId] = useState(null);
                 }
               />
               <select
-                value={newTask.progress}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, progress: e.target.value })
-                }
-              >
-                <option value="">Select Your Progress</option> {/* Added default option */}
-                <option value="0">To-do</option>
-                <option value="1">In Progress</option>
-                <option value="2">Done</option>
-              </select>
+  value={newTask.progress}
+  onChange={(e) =>
+    setNewTask({ ...newTask, progress: e.target.value })
+  }
+>
+  <option value="">Select Your Progress</option> {/* Added default option */}
+  <option value="0" style={{ color: '#ff5733' }}>To-do</option> {/* Red for 'To-do' */}
+  <option value="1" style={{ color: '#ffac33' }}>In Progress</option> {/* Orange for 'In Progress' */}
+  <option value="2" style={{ color: 'green' }}>Done</option> {/* Green for 'Done' */}
+</select>
 
-              <select
-                value={newTask.priority}
-                onChange={(e) =>
-                  setNewTask({ ...newTask, priority: e.target.value })
-                }
-              >
-                <option value="">Select Priority</option> {/* Added default option */}
-                <option value="0">Low</option>
-                <option value="1">Medium</option>
-                <option value="2">High</option>
-              </select>
+<select
+  value={newTask.priority}
+  onChange={(e) =>
+    setNewTask({ ...newTask, priority: e.target.value })
+  }
+>
+  <option value="">Select Priority</option> {/* Added default option */}
+  <option value="0" style={{ color: 'blue' }}>Low</option> {/* Blue for 'Low' */}
+  <option value="1" style={{ color: 'purple' }}>Medium</option> {/* Purple for 'Medium' */}
+  <option value="2" style={{ color: 'red' }}>High</option> {/* Red for 'High' */}
+</select>
             </div>
-            <div className="task-actions">
-              <button onClick={handleCreateTask}>Create Task</button>
-              <button onClick={() => setShowTaskPopup(false)}>Cancel</button>
-            </div>
+          <div className="task-actions">
+            <button onClick={handleCreateTask}>Create Task</button>
+            <button onClick={() => setShowTaskPopup(false)}>Cancel</button>
           </div>
         </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
   function openEditTaskPopup(task) {
-    console.log(task.taskId);
     setEditTaskData(task);
     setTaskId(task.taskId);
+    setCurrentTaskId(task.taskId);
     setShowEditTaskPopup(true);
   }
   
   async function saveEditedTask(editTaskData) {
     try {
       editTaskData.taskId = taskId;
-      console.log(editTaskData.taskId);
-      console.log(editTaskData);
+  
   
       // Fetch the original task data for comparison
       const originalTaskResponse = await axios.get(`http://localhost:5001/tasks/tasks/${taskId}`);
-      console.log(originalTaskResponse);
   
       if (originalTaskResponse.status === 200) {
         const originalTask = originalTaskResponse.data.payload;
-        console.log(originalTask);
-        console.log(originalTask.taskname);
+
   
         // Create an object to hold the final edited data
         const finalEditData = {
@@ -186,7 +195,6 @@ const [taskId, setTaskId] = useState(null);
           id: editTaskData.taskId,
         };
   
-        console.log(finalEditData);
   
         // Now, finalEditData contains the merged data with non-empty values from
         // editTaskData and originalTask where necessary
@@ -205,22 +213,43 @@ const [taskId, setTaskId] = useState(null);
     }
   }
 
-  const handleDeleteTask = async () => {
-    if (editTaskData && editTaskData.taskId) {
-      try {
-        const response = await axios.delete(`http://localhost:5001/tasks/${editTaskData.taskId}`);
-        if (response.status === 200) {
-          // Task deleted successfully
-          fetchTasks(); // Refresh the task list
-          setShowEditTaskPopup(false); // Close the edit task popup
-        } else {
-          console.error('Error deleting task:', response.data.message);
-        }
-      } catch (error) {
-        console.error('Error deleting task:', error);
-      }
-    }
+  const handleDeleteTask = async (task) => {
+    console.log('Delete button clicked'); // Add this line for debugging
+    // Set the task ID for which the delete confirmation should be displayed
+    setDeleteConfirmationTaskId(task.taskId);
+    setCurrentTaskId(taskId);
+    setShowDeleteConfirmation(true); // Show the delete confirmation dialog
+    setShowEditTaskPopup(false);
   };
+
+  async function confirmDeleteTask() {
+    try {
+      console.log(taskId)
+      const response = await axios.delete(
+        `http://localhost:5001/tasks/${taskId}`
+      );
+      if (response.status === 200) {
+        // Task deleted successfully
+        console.log('confirmDeleteTask: Task deleted successfully.');
+        fetchTasks(); // Refresh the task list
+        setShowEditTaskPopup(false); // Close the edit task popup
+        setShowDeleteConfirmation(false); // Close the delete confirmation dialog
+      } else {
+        console.error('confirmDeleteTask: Error deleting task:', response.data.message);
+      }
+    } catch (error) {
+      console.error('confirmDeleteTask: Error deleting task:', error);
+    }
+  }
+  
+
+  const cancelDeleteTask = () => {
+    // Reset the current taskID and close the delete confirmation dialog
+    setCurrentTaskId(null);
+    setShowDeleteConfirmation(false);
+    console.log('cancelDeleteTask: Delete operation canceled.');
+  };
+  
   
   
 
@@ -244,6 +273,21 @@ const [taskId, setTaskId] = useState(null);
       return `${daysLeft} days left`;
     }
   };
+
+  function sortByDueDate(tasks) {
+    // Use the JavaScript sort function to sort the tasks by enddate
+    return tasks.sort((a, b) => {
+      // Convert the enddate strings to Date objects for comparison
+      const dateA = new Date(a.enddate);
+      const dateB = new Date(b.enddate);
+  
+      // Compare the dates
+      if (dateA < dateB) return -1;
+      if (dateA > dateB) return 1;
+      return 0;
+    });
+  }
+  
   
   
 
@@ -277,19 +321,42 @@ const [taskId, setTaskId] = useState(null);
             <h2>Your Tasks: </h2>
           </div>
           <div className="tasks-list">
-          {tasks.map((task, index) => (
+          {sortByDueDate(tasks).map((task, index) => (
   <div key={index} className="task-item clickable" onClick={() => openEditTaskPopup(task)}>
-    <p className="task-name">
-      <strong>{task.taskname}</strong>
-    </p>
-    <p className="due-date">
-      Due Date: {task.enddate ? task.enddate.split('T')[0] : 'N/A'}
-    </p>
+  <div className="task-details-left">
+    <div className="task-name-due-date">
+      <p className="task-name">
+        <strong>{task.taskname}</strong>
+      </p>
+      <p className="due-date">
+        Due Date: {task.enddate ? task.enddate.split('T')[0] : 'N/A'}
+      </p>
+    </div>
     <p className="days-left">
       {calculateDaysLeft(task.enddate)}
     </p>
+    <div className="task-description">
+    <h5 style={{ paddingTop: '10px', fontSize: '18px' }}><strong>Description:</strong></h5>
+      <p className="due-description">
+        {task.description}
+      </p>
+    </div>
   </div>
+  <div className="task-details-right">
+    {/* Display progress with corresponding text and color */}
+    <p className="task-progress" style={{ color: task.progress === '0' || task.progress === 0 ? '#ff0000 ' : task.progress === '1' || task.progress === 1 ? '#ff7933 ' : task.progress === '2' || task.progress === 2 ? 'green' : 'inherit' }}>
+      {task.progress === '0' || task.progress === 0 ? 'To-do' : task.progress === '1' || task.progress === 1 ? 'In Progress' : task.progress === '2' || task.progress === 2 ? 'Done' : ''}
+    </p>
+    {/* Display priority with corresponding text and color */}
+    <p className="task-priority" style={{ color: task.priority === '0' || task.priority === 0 ? '#2a9df4' : task.priority === '1' || task.priority === 1 ? '#1167b1' : task.priority === '2' || task.priority === 2 ? '#03254c' : 'inherit' }}>
+      {task.priority === '0' || task.priority === 0 ? 'Low' : task.priority === '1' || task.priority === 1 ? 'Medium' : task.priority === '2' || task.priority === 2 ? 'High' : ''}
+    </p>
+  </div>
+</div>
+
 ))}
+
+
 
             <div className="add-task-form">
               <div className="button-container">
@@ -400,17 +467,30 @@ const [taskId, setTaskId] = useState(null);
         </div>
         <div className="task-actions">
           <button type="submit">Save</button>
-          <button onClick={handleDeleteTask}>Delete</button> {/* Add delete button */}
           <button onClick={() => setShowEditTaskPopup(false)}>Cancel</button>
+          <button onClick={handleDeleteTask}>Delete</button> {/* Add delete button */}
         </div>
+        
+
       </form>
     </div>
   </div>
 )}
+{/* Confirmation dialog for deleting a task */}
+{showDeleteConfirmation && (
+  <div className="delete-confirmation">
+    <p>Are you sure you want to delete this task?</p>
+    <button onClick={confirmDeleteTask}>Yes</button>
+    <button onClick={cancelDeleteTask}>No</button>
+  </div>
+)}
+
         </div>
       </div>
       <div className="bottom-whitespace"></div> {/* This is for adding whitespace at the bottom */}
     </div>
+
+    
   );
 }
 

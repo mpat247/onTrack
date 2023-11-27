@@ -97,7 +97,7 @@ body {
   font-size: 16px;
   font-weight: 400;
   color: var(--text-color);
-  background-color: #f1f1fb;
+  background-color: #d9d9d9;
   transition: all 0.3s;
   padding: 10px;
   position: relative;
@@ -136,10 +136,10 @@ body {
 .days .day.today {
   color: black; /* Change the text color to black or a suitable color */
   background-color: var(--primary-color);
-}
+} 
 .days .day.next,
 .days .day.prev {
-  color: #ccc;
+  color: #767575;
 }
 
 
@@ -478,4 +478,76 @@ ul li {
 .clickable {
   cursor: pointer;
   /* Add any other styles to make it visually clickable */
+}
+
+
+ /* Delete Confirmation Dialog Styles */
+ .delete-confirmation {
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  position: fixed;
+  top: 50%; /* Center vertically */
+  left: 50%; /* Center horizontally */
+  transform: translate(-50%, -50%);
+  z-index: 11; /* Ensure it's on top of the overlay */
+}
+
+.delete-confirmation p {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: black; /* Set the text color to black */
+}
+
+.delete-confirmation button {
+  background-color: #ff6347; /* Red color for delete button */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-right: 10px;
+}
+
+.delete-confirmation button:hover {
+  background-color: #d63426; /* Darker red on hover */
+}
+
+/* Updated CSS class names */
+.tasks-item {
+  background-color: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 5px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.tasks-item a {
+  text-decoration: none;
+  color: #333;
+  transition: color 0.2s;
+}
+
+.tasks-item a:hover {
+  color: #007bff;
+}
+
+.tasks-item .task-name {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.tasks-item .task-description {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #555;
+}
+
+.tasks-item .task-status {
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: bold;
 }

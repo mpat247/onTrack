@@ -309,26 +309,49 @@ router.put("/", async (req, res) => {
 
 // Delete Task
 router.delete("/:id", async (req, res) => {
-    const { id: taskId } = req.params;
-
+    const { id } = req.params;
+    console.log(id);
     try {
         const connection = await oracledb.getConnection(dbConfig);
 
-        try {
-            // Delete task
-            // Example:
-            // const result = await connection.execute(
-            //     `DELETE FROM tasks WHERE task_id = :taskId`,
-            //     { taskId }
-            // );
+        if (!id) {
+            return res.status(400).send({ error: "Task Id is required" });
+        }
 
-            // Success or fail response
-            // Example:
-            // if (result.rowsAffected === 1) {
-            //     res.status(204).send();
-            // } else {
-            //     res.status(404).send({ error: "Task not found" });
-            // }
+        // Check if the task exists
+        let taskExists = false;
+        try {
+            const userConnection = await oracledb.getConnection(dbConfig);
+            const userResult = await userConnection.execute(
+                `SELECT * FROM TASK WHERE TASK_ID = :id`,
+                { id }
+            );
+            taskExists = userResult.rows.length > 0;
+            await userConnection.close();
+        } catch (error) {
+            console.error("Error checking task existence: ", error);
+            return res.status(500).send({ error: "Database Error", details: error.message });
+        }
+
+        if (!taskExists) {
+            return res.status(400).send({ error: "Task doesn't exist" });
+        }
+
+        try {
+            // Delete query
+            const result = await connection.execute(
+                `DELETE FROM TASK
+                WHERE TASK_ID = :id`,
+                { id }
+            );
+            await connection.commit();
+
+            // Check if the task was deleted successfully
+            if (result.rowsAffected === 1) {
+                res.status(200).send(); // 204 indicates No Content (successful deletion)
+            } else {
+                res.status(404).send({ error: "Task not found" });
+            }
         } catch (error) {
             res.status(500).send({ error: "Database Query Error", details: error.message });
         } finally {
@@ -341,9 +364,11 @@ router.delete("/:id", async (req, res) => {
             }
         }
     } catch (error) {
+        console.error("Error establishing database connection: ", error);
         res.status(500).send({ error: "Database Connection Error", details: error.message });
     }
 });
+
 
 module.exports = router;
 
