@@ -380,6 +380,7 @@ router.put("/auth", async (req, res) => {
     }
 });
 
+//add in a backend functionality for updating the username
 
 
 // update password - forgot password

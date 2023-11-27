@@ -250,7 +250,12 @@ const [currentTaskId, setCurrentTaskId] = useState(null);
     console.log('cancelDeleteTask: Delete operation canceled.');
   };
   
-  
+  //create a function that happens when the user clicks edit user button
+  function editUser() {
+    window.location.href = 'http://localhost:3000/edituserdetails';
+    //can add logic here such that a pop up prompting the user to enter their password
+    //opens to confirm that their password before they are redirecte to the edit user page
+  }
   
 
   function handleSignOut() {
@@ -354,6 +359,7 @@ const [currentTaskId, setCurrentTaskId] = useState(null);
   </div>
 </div>
 
+//add a button to edit user in before the log out button
 ))}
 
 
@@ -368,6 +374,9 @@ const [currentTaskId, setCurrentTaskId] = useState(null);
                   onClick={() => setShowTaskPopup(true)}
                 >
                   Add Task
+                </button>
+                <button className="edit-user-button" onClick={editUser}>
+                  Edit User
                 </button>
                 <button className="logout-button" onClick={handleSignOut}>
                   Log Out
