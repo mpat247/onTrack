@@ -489,9 +489,9 @@ router.put("/reset", async (req, res) => {
         }
 
         if (!password) {
-            return res.status(400).send({ error: "Email is required" });
+            return res.status(400).send({ error: "password is required" });
         } else if (typeof email !== 'string') {
-            return res.status(400).send({ error: "Email must be a string" });
+            return res.status(400).send({ error: "password must be a string" });
         }
 
         // Check if the user exists
