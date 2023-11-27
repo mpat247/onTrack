@@ -6,6 +6,7 @@ import Home from './HomePage.js';
 import RegisterPage from './Registration.js';
 import ForgotPassPage from './ForgotPass.js';
 import ResetPass from './ResetPass.js';
+import EditUserDetails from './EditUserDetails.js'
 
 import './App.css';
 
@@ -19,6 +20,7 @@ function App() {
         <Route path="/registerpage" element={<RegisterPage />} />
         <Route path="/forgotpassword" element={<ForgotPassPage />} />
         <Route path="/resetpassword" element={<ResetPass />} />
+        <Route path="/edituserdetails" element={<EditUserDetails />} />
 
       </Routes>
     </Router>

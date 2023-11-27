@@ -459,6 +459,92 @@ router.put("/reset", async (req, res) => {
 }
 );
 
+// update user 
+router.put("/reset", async (req, res) => {
+    // Get parameters to insert into the database from the request body
+    const {userId, name, password, email } = req.body;
+    console.log(req.body);
+
+    try {
+        const connection = await oracledb.getConnection(dbConfig);
+
+        const passwordPattern = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+        // password check - length, numbers + characters
+        if (!userId) {
+            return res.status(400).send({ error: "UserId required" });
+        } else if (typeof password !== 'number') {
+            return res.status(400).send({ error: "UserId must be a number" });
+        }
+
+        if (!name) {
+            return res.status(400).send({ error: "Email is required" });
+        } else if (typeof email !== 'string') {
+            return res.status(400).send({ error: "Email must be a string" });
+        }
+
+        if (!email) {
+            return res.status(400).send({ error: "Email is required" });
+        } else if (typeof email !== 'string') {
+            return res.status(400).send({ error: "Email must be a string" });
+        }
+
+        if (!password) {
+            return res.status(400).send({ error: "Email is required" });
+        } else if (typeof email !== 'string') {
+            return res.status(400).send({ error: "Email must be a string" });
+        }
+
+        // Check if the user exists
+        let userExists2 = false;
+        try {
+            const userConnection = await oracledb.getConnection(dbConfig);
+            const userResult2 = await userConnection.execute(
+                `SELECT * FROM ACCOUNT WHERE USER_EMAIL = :email`,
+                {email}
+            );
+            userExists2 = userResult2.rows.length > 0;
+            await userConnection.close();
+        } catch (error) {
+            console.error("Error checking user existence: ", error);
+            return res.status(500).send({ error: "Database Error", details: error.message });
+        }
+
+        if (!userExists2) {
+            return res.status(400).send({ error: "Email doesn't exist" });
+        }
+
+        try {
+            // Insert query to insert the new task into the database
+            const result = await connection.execute(
+                "UPDATE ACCOUNT SET USER_PASSWORD = :USER_PASSWORD WHERE USER_EMAIL = :USER_EMAIL",
+                {
+                  USER_PASSWORD: password,
+                  USER_EMAIL: email,
+                }
+              );
+              
+            await connection.commit();
+
+            // Success response
+            res.status(200).send({ payload: result, message: "User passowrd updated successfully" });
+        } catch (error) {
+            console.error("Database Query Error:", error); // Log the error for debugging
+            res.status(500).send({ error: "Database Query Error", details: error.message });
+        } finally {
+            if (connection) {
+                try {
+                    await connection.close();
+                } catch (err) {
+                    console.error(err.message);
+                }
+            }
+        }
+    } catch (error) {
+        res.status(500).send({ error: "Database Connection Error", details: error.message });
+    }
+}
+);
+
 router.delete("/", (req, res) => {
     res.send({ data: "Test"});
 });
