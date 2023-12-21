@@ -48,4 +48,6 @@ The WebApp is compatible with devices of all sizes and all OS's, and consistent 
 - [React.js](https://react.dev/) - The library for web and native user interfaces.
 - [Node.js](https://nodejs.org/en) - Node.js® is an open-source, cross-platform JavaScript runtime environment.
 - [Express.js](https://expressjs.com/) - Fast, unopinionated, minimalist web framework for Node.js.
+- [Oracle 11g]([https://expressjs.com/](https://docs.oracle.com/cd/E11882_01/index.htm))
+
 
