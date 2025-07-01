@@ -3,9 +3,8 @@
 <table>
 <tr>
 <td>
-  A task manager webapp
-  'onTrack,' a web application designed for engineering students, seamlessly integrates task management and collaboration. With features like shared calendars, progress tracking, and priority assignment, it empowers students to navigate academic complexities efficiently, fostering teamwork and success in engineering endeavors.
-  Tech Stack: Node.js, React.js, Oracle DB
+  onTrack – A task manager built for engineering students with shared calendars, progress tracking, and priority tasks.  
+  Tech Stack: Express, React, Node.js, Oracle DB
 </td>
 </tr>
 </table>
@@ -21,8 +20,6 @@
 ![](https://github.com/mpat247/onTrack/blob/main/images/146bb3b15a6ce5401d03cadddcb66bdfb5eafbaa.jpg)
 
 ### Authentication
-The WebApp is compatible with devices of all sizes and all OS's, and consistent improvements are being made.
-
 ![](https://github.com/mpat247/onTrack/blob/main/images/3ac5d778c38f68043a4ab3f597e8a532fe9001c4.jpg)
 
 ![](https://github.com/mpat247/onTrack/blob/main/images/d50b23cf49fef387e176f5afd55150d76074cb32.jpg)
@@ -44,10 +41,9 @@ The WebApp is compatible with devices of all sizes and all OS's, and consistent 
 
 ## Built with 
 
-- [jQuery - Ajax](http://www.w3schools.com/jquery/jquery_ref_ajax.asp) - jQuery simplifies HTML document traversing, event handling, animating, and Ajax interactions for rapid web development.
-- [React.js](https://react.dev/) - The library for web and native user interfaces.
-- [Node.js](https://nodejs.org/en) - Node.js® is an open-source, cross-platform JavaScript runtime environment.
-- [Express.js](https://expressjs.com/) - Fast, unopinionated, minimalist web framework for Node.js.
+- [React.js](https://react.dev/)
+- [Node.js](https://nodejs.org/en)
+- [Express.js](https://expressjs.com/)
 - [Oracle 11g](https://docs.oracle.com/cd/E11882_01/index.htm)
 
 
